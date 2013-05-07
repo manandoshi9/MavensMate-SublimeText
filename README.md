@@ -1,3 +1,6 @@
+This is my try to make the MavensMate 2.0 work in linux
+
+
 #MavensMate for Sublime Text plugin (2.0 beta)
 
 MavensMate for Sublime Text is a plugin that aims to replicate the functionality of the Eclipse-based Force.com IDE. Its goal is to allow developers to work inside Sublime Text for all their Force.com-related tasks.
