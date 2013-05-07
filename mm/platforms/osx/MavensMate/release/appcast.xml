@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle"  xmlns:dc="http://purl.org/dc/elements/1.1/">
+   <channel>
+      <title>MavensMate Changelog</title>
+      <link>http://joe-ferraro.com/mavensmate/appcast.xml</link>
+      <description>Most recent changes with links to updates.</description>
+      <language>en</language>
+         <item>
+            <title>Version 0.29</title>
+						<description><![CDATA[
+                <h2>Version 0.29</h2>
+                <p>This release brings many much-needed bug fixes</p>
+                <p>
+                  <ul>
+                    <li>Deployment issue to production orgs has been resolved (<a href="https://github.com/joeferraro/MavensMate-SublimeText/issues/118">#118</a>) (thanks @britishboyindc)</li>
+                    <li>Creating a new MavensMate project from an existing directory (inside or outside your workspace) is now much more stable (thanks @knthornt)</li>
+                    <li>mm_client has been tweaked for performance, so you may experience faster API-related operations</li>
+                    <li>Logging is now properly connected to plugin settings: "mm_log_location" and "mm_log_level"</li>
+                    <li>Better validation for operations</li>
+                    <li>Edit/Deploy project now more accurately displays project's selected metadata</li>
+                  </ul>
+                </p>
+                <p>
+                  <b>MavensMate for Sublime Text has also been updated to 2.1.3, so be sure to run the update from MavensMate.app --> Plugins</b>
+                </p>
+            ]]>
+            </description>
+            <pubDate>Fri, 05 April 2013 11:31:27 +0000</pubDate>
+            <enclosure url="http://joe-ferraro.com/mavensmate/MavensMate.zip" sparkle:version="0.29" length="1623481" type="application/octet-stream" sparkle:dsaSignature="MCwCFEYaaBPe70EXfPMkTEhzPfCI9q2+AhQl/xEHjl09+6ZL3Omlgc46qr+9kg==" />
+         </item>
+   </channel>
+</rss>

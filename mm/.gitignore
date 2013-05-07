@@ -1,0 +1,17 @@
+.DS_Store
+*.DS_Store
+*.pyc
+dist/
+mm/dist
+mmserver/dist
+tools/pyinstaller/mmserver
+tools/pyinstaller/mm
+tools/pyinstaller-dev/mmserver
+tools/pyinstaller-dev/mm
+platforms/osx/MavensMate/dist
+*.log
+platforms/osx/MavensMate/release/MavensMate.zip
+
+platforms/osx/MavensMate/build/upload_release.py
+
+mm/build/build_settings.json

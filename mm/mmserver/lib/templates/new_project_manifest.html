@@ -1,0 +1,12 @@
+{
+	"project_name" 	: "{{ params['project_name'] }}",
+    "username"    	: "{{ params['username'] }}",
+    "password"    	: "{{ params['password'] }}",
+    "org_type"    	: "{{ params['org_type'] }}",
+    "vc_username"  	: "{{ params['vc_username'] if 'vc_username' in params }}",
+    "vc_password"  	: "{{ params['vc_password'] if 'vc_password' in params }}",    
+    "vc_url"       	: "{{ params['vc_url'] if 'vc_url' in params }}",
+    "vc_type"      	: "{{ params['vc_type'] if 'vc_type' in params }}",
+    "vc_branch"    	: "{{ params['vc_branch'] if 'vc_branch' in params }}",
+    "package"      	: {{ params['package'] if 'package' in params }}
+}
