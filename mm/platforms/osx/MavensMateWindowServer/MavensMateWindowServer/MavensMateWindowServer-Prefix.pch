@@ -1,7 +1,0 @@
-//
-// Prefix header for all source files of the 'MavensMateWindowServer' target in the 'MavensMateWindowServer' project
-//
-
-#ifdef __OBJC__
-    #import <Cocoa/Cocoa.h>
-#endif
