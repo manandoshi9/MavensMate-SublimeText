@@ -179,7 +179,7 @@ class OpenProjectCommand(sublime_plugin.WindowCommand):
             if sublime_version >= 3000:
                 p = subprocess.Popen("'/Applications/Sublime Text 3.app/Contents/SharedSupport/bin/subl' --project '"+util.mm_workspace()+"/"+self.picked_project+"/"+project_file+"'", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
             else:
-                p = subprocess.Popen("'/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl' --project '"+util.mm_workspace()+"/"+self.picked_project+"/"+project_file+"'", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+                p = subprocess.Popen("'/usr/bin/sublime' --project '"+util.mm_workspace()+"/"+self.picked_project+"/"+project_file+"'", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
         else:
             sublime.message_dialog("Cannot find: "+util.mm_workspace()+"/"+self.picked_project+"/"+project_file)
 
@@ -574,12 +574,12 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                 for method in pd:
                     _completions.append((method, method))
                 return sorted(_completions)
-            elif os.path.isfile(mm_project_directory()+"/src/classes/"+word+".cls"): #=> custom apex class static methods
+            elif os.path.isfile(util.mm_project_directory()+"/src/classes/"+word+".cls"): #=> custom apex class static methods
                 search_name = util.prep_for_search(word)
                 #print search_name
-                #print 'looking for class def in: ' + mm_project_directory()+"/config/.class_docs/xml/class_"+search_name+".xml"
-                if os.path.isfile(mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml"):
-                    object_dom = parse(mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml")
+                #print 'looking for class def in: ' + util.mm_project_directory()+"/config/.class_docs/xml/class_"+search_name+".xml"
+                if os.path.isfile(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml"):
+                    object_dom = parse(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml")
                     for node in object_dom.getElementsByTagName('memberdef'):
                         #print node.getAttribute("static")
                         if node.getAttribute("static") == "No": continue
@@ -733,8 +733,8 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                     for method in pd:
                         _completions.append((method, method))
                     return sorted(_completions)
-                elif os.path.isfile(mm_project_directory()+"/config/objects/"+object_name_lower+".object"): #=> object fields
-                    object_dom = parse(mm_project_directory()+"/config/objects/"+object_name_lower+".object")
+                elif os.path.isfile(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object"): #=> object fields
+                    object_dom = parse(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object")
                     for node in object_dom.getElementsByTagName('fields'):
                         field_name = ''
                         field_type = ''
@@ -746,8 +746,8 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                                 field_type = child.firstChild.nodeValue
                         _completions.append((field_name+" \t"+field_type, field_name))
                     return sorted(_completions)
-                elif os.path.isfile(mm_project_directory()+"/src/objects/"+object_name_lower+".object"): #=> object fields
-                    object_dom = parse(mm_project_directory()+"/src/objects/"+object_name_lower+".object")
+                elif os.path.isfile(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object"): #=> object fields
+                    object_dom = parse(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object")
                     for node in object_dom.getElementsByTagName('fields'):
                         field_name = ''
                         field_type = ''
@@ -759,12 +759,12 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                                 field_type = child.firstChild.nodeValue
                         _completions.append((field_name+" \t"+field_type, field_name))
                     return sorted(_completions)
-                elif os.path.isfile(mm_project_directory()+"/src/classes/"+object_name_lower+".cls"): #=> apex classes
+                elif os.path.isfile(util.mm_project_directory()+"/src/classes/"+object_name_lower+".cls"): #=> apex classes
                     search_name = util.prep_for_search(object_name)
                     #print search_name
-                    #print 'looking for class def in: ' + mm_project_directory()+"/config/.class_docs/xml/class_"+search_name+".xml"
-                    if os.path.isfile(mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml"):
-                        object_dom = parse(mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml")
+                    #print 'looking for class def in: ' + util.mm_project_directory()+"/config/.class_docs/xml/class_"+search_name+".xml"
+                    if os.path.isfile(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml"):
+                        object_dom = parse(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml")
                         for node in object_dom.getElementsByTagName('memberdef'):
                             if node.getAttribute("static") == "Yes": continue
                             member_type = ''
@@ -786,13 +786,13 @@ class MavensMateCompletions(sublime_plugin.EventListener):
 #uses doxygen to generate xml-based documentation which assists in code completion/suggest functionality in MavensMate
 class GenerateApexClassDocs(sublime_plugin.WindowCommand):
     def run(self):
-        dinput = mm_project_directory() + "/src/classes"
-        doutput = mm_project_directory() + "/config/.class_docs"
-        if os.path.exists(mm_project_directory() + "/config/.class_docs/xml"):
+        dinput = util.mm_project_directory() + "/src/classes"
+        doutput = util.mm_project_directory() + "/config/.class_docs"
+        if os.path.exists(util.mm_project_directory() + "/config/.class_docs/xml"):
             import shutil
-            shutil.rmtree(mm_project_directory() + "/config/.class_docs/xml")
-        if not os.path.exists(mm_project_directory() + "/config/.class_docs"):
-            os.makedirs(mm_project_directory() + "/config/.class_docs")
+            shutil.rmtree(util.mm_project_directory() + "/config/.class_docs/xml")
+        if not os.path.exists(util.mm_project_directory() + "/config/.class_docs"):
+            os.makedirs(util.mm_project_directory() + "/config/.class_docs")
 
         printer = PanelPrinter.get(self.window.id())  
         printer.show() 
