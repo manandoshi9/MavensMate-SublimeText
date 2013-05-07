@@ -9,7 +9,7 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 {
 	//set to location where you wish your MavensMate project to reside (must be an existing directory)
 	//for example: "/Users/username/Documents/workspaces/mavensmate" (notice the absolute path)
-	"mm_workspace" : "",
+	"mm_workspace" : "/home/manan/workspace",
 
 	//set to desired Salesforce.com API version
 	"mm_api_version" : "27.0",
