@@ -31,7 +31,7 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 
 	//set to location where you wish your MavensMate project to reside (must be an existing directory)
 	//for example: "/Users/username/Documents/workspaces/mavensmate" (notice the absolute path)
-	"mm_workspace" : "/media/manan/sub_workspace",
+	"mm_workspace" : "/home/manan/workspace",
 
 	//set to desired Salesforce.com API version
 	"mm_api_version" : "27.0",
@@ -61,10 +61,10 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 	"mm_send_usage_statistics" : true,
 
 	//the location of MavensMate.app
-	"mm_app_location" : "/Applications/MavensMate.app",
+	"mm_app_location" : "/mm/tools/pyinstaller/mmserver/dist/mmserver/mmserver",
 
 	//the location of the mm command line tool (must be inside MavensMate.app)
-	"mm_location" : "/home/manan/mm/mm.py",
+	"mm_location" : "/home/manan/mm/mm/mm.py",
 
 	//if true, MavensMate.app will start when Sublime Text starts
 	"mm_start_app_on_st_startup" : true

@@ -475,14 +475,15 @@ def prep_for_search(name):
     return name.replace('_', '')
 
 def start_mavensmate_app():
-    p = subprocess.Popen("pgrep -fl MavensMate", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    p = subprocess.Popen("pgrep -fc mmserver", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+    processCount = p.communicate()[0]
     msg = None
-    if p.stdout is not None: 
-        msg = p.stdout.readlines()
-    elif p.stderr is not None:
-        msg = p.stdout.readlines() 
-    if msg == '' or len(msg) == 0:
-        os.system("open '"+settings.get('mm_app_location')+"'")
+    if p.stderr is not None:
+        msg = p.stdout.read()
+
+    if msg == None and int(processCount) == 1:
+        command = settings.get('mm_app_location') + " -m " + settings.get('mm_location')
+        subprocess.Popen( command.split() )
 
 class UsageReporter(threading.Thread):
     def __init__(self, action):
