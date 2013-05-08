@@ -44,24 +44,39 @@ class NewProjectCommand(sublime_plugin.ApplicationCommand):
 
 #displays edit project dialog
 class EditProjectCommand(sublime_plugin.ApplicationCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(command):
         util.mm_call('edit_project', False)
         util.send_usage_statistics('Edit Project')
 
 #displays unit test dialog
 class RunApexUnitTestsCommand(sublime_plugin.ApplicationCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(command):
         util.mm_call('unit_test', False)
         util.send_usage_statistics('Apex Unit Testing')
 
 #launches the execute anonymous UI
 class ExecuteAnonymousCommand(sublime_plugin.ApplicationCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(command):
         util.mm_call('execute_apex', False)
         util.send_usage_statistics('Execute Anonymous')
 
 #displays deploy dialog
 class DeployToServerCommand(sublime_plugin.ApplicationCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(command):
         #TODO check for org connections before allowing deploy ui to open
         util.mm_call('deploy', False)
@@ -185,6 +200,9 @@ class OpenProjectCommand(sublime_plugin.WindowCommand):
 
 #displays new apex class dialog
 class NewApexClassCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(self, edit): 
         util.send_usage_statistics('New Apex Class')
         sublime.active_window().show_input_panel("Apex Class Name, Template (base, test, batch, sched, email, exception, empty)", "MyClass, base", self.on_input, None, None)
@@ -200,6 +218,9 @@ class NewApexClassCommand(sublime_plugin.TextCommand):
 
 #displays new apex trigger dialog
 class NewApexTriggerCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return util.is_mm_project() 
+
     def run(self, edit): 
         util.send_usage_statistics('New Apex Trigger')
         sublime.active_window().show_input_panel("Apex Trigger Name, SObject Name", "MyAccountTrigger, Account", self.on_input, None, None)
@@ -215,6 +236,8 @@ class NewApexTriggerCommand(sublime_plugin.TextCommand):
 
 #displays new apex page dialog
 class NewApexPageCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
     def run(self, edit): 
         util.send_usage_statistics('New Visualforce Page')
         sublime.active_window().show_input_panel("Visualforce Page Name", "", self.on_input, None, None)
@@ -229,6 +252,9 @@ class NewApexPageCommand(sublime_plugin.TextCommand):
 
 #displays new apex component dialog
 class NewApexComponentCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(self, edit): 
         util.send_usage_statistics('New Visualforce Component')
         sublime.active_window().show_input_panel("Visualforce Component Name", "", self.on_input, None, None)
@@ -243,9 +269,10 @@ class NewApexComponentCommand(sublime_plugin.TextCommand):
 
 #displays mavensmate panel
 class ShowDebugPanelCommand(sublime_plugin.WindowCommand):
+   
+
     def run(self): 
-        if util.is_mm_project() == True:
-            PanelPrinter.get(self.window.id()).show(True)
+        PanelPrinter.get(self.window.id()).show(True)
 
 #hides mavensmate panel
 class HideDebugPanelCommand(sublime_plugin.WindowCommand):
@@ -343,6 +370,9 @@ class DeleteMetadataCommand(sublime_plugin.WindowCommand):
 
 #attempts to compile the entire project
 class CompileProjectCommand(sublime_plugin.WindowCommand):
+    def is_enabled(self):
+        return util.is_mm_project()
+
     def run(self):
         if sublime.ok_cancel_dialog("Are you sure you want to compile the entire project?", "Compile Project"):
             util.mm_call('compile_project', context=self)
