@@ -22,7 +22,7 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 	// If `sublime_text` is not in your PATH, please specify the full path of the Sublime Text binary.
 	// OSX: only if you installed it to somewhere different than `/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl`
 	// Windows: Use slashes instead of backslashes. `C:/Program Files/Sublime Text 2/sublime_text.exe` for example.
-	// "mm_sublime" : "sublime_text",
+	"mm_sublime" : "/usr/bin/sublime",
 
 	// If `doxygen` is not in your PATH, please specify the full path of the Doxygen binary.
 	// OSX: doxygen is already included in this package.
@@ -31,7 +31,7 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 
 	//set to location where you wish your MavensMate project to reside (must be an existing directory)
 	//for example: "/Users/username/Documents/workspaces/mavensmate" (notice the absolute path)
-	"mm_workspace" : "/home/manan/workspace",
+	"mm_workspace" : "/media/manan/Extra/sub_workspace",
 
 	//set to desired Salesforce.com API version
 	"mm_api_version" : "27.0",
@@ -61,11 +61,11 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 	"mm_send_usage_statistics" : true,
 
 	//the location of MavensMate.app
-	"mm_app_location" : "/mm/tools/pyinstaller/mmserver/dist/mmserver/mmserver",
+	"mm_app_location" : "/home/manan/mm/mmserver/mmserver.py",
 
 	//the location of the mm command line tool (must be inside MavensMate.app)
 	"mm_location" : "/home/manan/mm/mm/mm.py",
 
 	//if true, MavensMate.app will start when Sublime Text starts
-	"mm_start_app_on_st_startup" : true
+	"mm_start_app_on_st_startup" : false
 }
