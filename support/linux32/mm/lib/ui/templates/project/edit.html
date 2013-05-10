@@ -1,0 +1,232 @@
+{% extends "layouts/base.html" %}
+{% block yield %}
+<div id="result_output" class="error">
+	<div id="result_wrapper" style="padding:0px 10px;">
+		<div class="alert-message error" style="display:none;">
+			<p id="error_message"></p>
+		</div>
+		<div class="alert-message success" style="display:none;">
+			<p id="success_message"></p>
+		</div>		
+	</div>
+</div>
+
+
+<div class="content">
+	
+	<ul class="tabs">
+		<li class="active"><a id="project_details_tab" href="#form">Project Details</a></li>
+		<li><a href="#metadata">Project Metadata</a></li>
+	</ul>
+	
+	<div class="pill-content">  
+		<div id="form" class="active">
+			<form class="form-stacked">
+				<fieldset>
+					<div class="clearfix">
+						<label for="pn">Project Name</label> 
+						<input class="xlarge" size="100" type="text" id="pn">
+					</div>
+					<div class="clearfix">
+						<label for="un">Salesforce Username</label> 
+						<input class="xlarge" size="100" type="text" id="un">
+					</div>
+					<div class="clearfix">
+						<label for="pw">Salesforce Password</label> 
+						<input class="xlarge" size="100" type="password" id="pw">
+					</div>
+					<div class="clearfix">
+						<label for="server_url">Org Type</label> 
+						<select id="org_type">
+							<option value="production">Production</option>
+							<option value="developer">Developer</option>
+							<option value="sandbox">Sandbox</option>
+							<option value="prerelease">Prerelease</option>
+						</select>
+					</div>
+					<div class="clearfix" style="margin-top:20px;">
+						<input type="button" class="btn primary" value="Update Credentials" onclick="updateProjectCreds();">
+					</div> 												
+				</fieldset>
+			</form>
+		</div>
+		<div id="metadata">
+			<div id="project_wrapper">
+		<div id="treewrapper" style="height:100%">
+			<div id="tree">
+				<ul>
+					{{ tree_body }}
+				</ul>
+			</div>
+			<div id="info"></div>
+		</div>
+	</div>				
+    	</div>
+	</div>
+</div>  
+	
+<form class="form-stacked" id="action_buttons">
+	<fieldset style="padding-top:0px;">
+		<div class="actions">					
+			<input type="button" id="btnSubmit" class="btn primary" value="Update Project"  onclick="updateProject();">
+			&nbsp;
+			<button type="button" class="btn success" value="Refresh Metadata" onclick="index_org(true);">Refresh Metadata</button>
+			&nbsp;
+			<button type="reset" class="btn" onclick="window.close();">Cancel</button>
+		</div>
+	</fieldset>
+</form>   
+
+	
+	<script type="text/javascript">
+		var mm_cpd = '{{ project_location }}';
+		var has_indexed_metadata = {{ has_indexed_metadata|lower }};
+		var operation;
+		var child_def = {}
+		
+		function updateProjectCreds() {
+			console.log('updating project creds')
+			operation = "update_creds"
+			$.ajax({
+				type: "POST",
+				url: "http://127.0.0.1:9000/project/creds", 
+				data: JSON.stringify({
+					username 			: $("#un").val(),
+			    	password 			: $("#pw").val(),
+			    	org_type 			: $("#org_type").val(),
+			    	override_session 	: true,
+			    	defer_connection 	: true,
+			    	project_name 		: '{{ name }}' 
+				}),
+				beforeSend: function() { showLoading('Updating project credentials'); },
+				complete: function(data){
+					console.log(data)				
+					var response = JSON.parse(data.responseText)
+					if (response["success"] == false) {
+						$("#error_message").html(response["body"] + "<a class=\"close\" href=\"#\">x</a>")
+						$(".alert-message.success").hide()
+						$(".alert-message.error").show()
+					} else {
+						$("#success_message").html(response["body"] + "<a class=\"close\" href=\"#\">x</a>")
+						$(".alert-message.error").hide()
+						$(".alert-message.success").show()
+					}
+					hideLoading();
+				}
+			});
+		}
+
+		function updateProject() {
+			console.log('updating project')
+			operation = "update"
+			$.ajax({
+				type: "POST",
+				url: "http://127.0.0.1:9000/project/edit", 
+				data: JSON.stringify({
+					package 		: get_tree(),
+					project_name 	: '{{ name }}'
+				}),
+				beforeSend: function() { showLoading('Updating project'); },
+				complete: function(data){
+					global_init_handler(data)
+				} 
+			});
+		}
+
+		function index_org(refresh) {
+			console.log('indexing org')
+			operation = "index"
+			$.ajax({
+				type: "POST",
+				url: "http://127.0.0.1:9000/project/index", 
+				data: JSON.stringify({
+					project_name 	: '{{ name }}'
+				}),
+				beforeSend: function() { showLoading('Indexing your Salesforce.com metadata.  This operation could take a while depending on the size of your org.<br/><br/>Thanks for being patient! :)'); },
+				complete: function(data, status, xhr){
+					global_init_handler(data)				
+				} 
+			});
+		}
+
+		function handle_response(response) {
+			if (operation == "index") {
+				if (response["success"] == false) {
+					$("#error_message").html(response["body"])
+					$(".alert-message.error").show()
+				} else {
+					$("#tree").dynatree("destroy")
+					$("#tree ul").html(response["body"]);
+					$("#tree").dynatree({
+						persist: false,
+						checkbox: true,
+						selectMode: 3
+					});
+					$("#tree").dynatree("getRoot").visit(function(node) {
+		        		node.expand(false);
+		    		});  
+					rootNode = $("#tree").dynatree("getRoot");
+				}
+				hideLoading();
+			} else if (operation == "update") {
+				if (response["success"] == false) {
+					$("#error_message").html(response["body"])
+					$(".alert-message.error").show()
+				} else {
+					$("#success_message").html("Project updated successfully")
+					$(".alert-message.success").show()
+				}
+				hideLoading();
+			}
+		}
+			
+		$(function() {		   
+			//instantiate tabs
+			$('.tabs').tabs();
+			
+			var resizeHeight = $("#project_wrapper").height(); 
+		    resizeAndCenterWindowByHeight(resizeHeight);
+
+			$(window).resize(function() {
+				$("#project_wrapper").height($(window).height() - 175)
+			});  
+			
+			//ppw = ppw.gsub!(/'/, '\'').gsub!(/\"/, '\"')  
+			//pname = pname.gsub!(/'/, '\'').gsub!(/\"/, '\"')  
+
+			$("#pn").val("{{ name }}");  
+			$("#un").val("{{ username }}");
+			$("#pw").val("{{ password }}");
+			$("#org_type").val("{{ org_type }}");
+			
+			$("#pn").prop('disabled', true);  
+			//$("#un").prop('disabled', true);  
+			//$("#pw").prop('disabled', true);  
+			//$("#server_url").prop('disabled', true);  
+							
+			//resize elements
+			$("#project_wrapper").height($(window).height() - 175)
+			
+			$(window).resize(function() {
+				$("#project_wrapper").height($(window).height() - 175)
+			});
+
+			if (!has_indexed_metadata) {
+				index_org();
+			} else {
+				$("#tree").dynatree({
+					persist: false,
+					checkbox: true,
+					selectMode: 3,
+					debugLevel: 0
+				});
+				$("#tree").dynatree("getRoot").visit(function(node) {
+					node.expand(false);
+				});  
+				rootNode = $("#tree").dynatree("getRoot");
+			}
+		});	
+
+	</script>
+
+{% endblock %}
