@@ -7,31 +7,18 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 */
 
 {
-	//** if you wish to utilize rvm, set to "~/.rvm/bin/rvm-auto-ruby"
-	// Windows: Use slashes instead of backslashes.
-	"mm_ruby" : "ruby",
-
-	// If `python` is not in your PATH or linked to Python 3, please specify the full path of the Python 2 binary.
-	// Windows: Use slashes instead of backslashes. `C:/Python27/python.exe` for example.
-	// "mm_python" : "python",
-	
 	// If `chrome` is not in your PATH, please specify the full path of the Google Chrome binary.
 	// Windows: Use slashes instead of backslashes. `C:/Users/myuser/AppData/Local/Google/Chrome/Application/chrome.exe` for example.
-	 "mm_chrome" : "/usr/bin/chromium-browser",
+	 "mm_chrome" : "chromium-browser",
 
 	// If `sublime_text` is not in your PATH, please specify the full path of the Sublime Text binary.
 	// OSX: only if you installed it to somewhere different than `/Applications/Sublime Text 2.app/Contents/SharedSupport/bin/subl`
 	// Windows: Use slashes instead of backslashes. `C:/Program Files/Sublime Text 2/sublime_text.exe` for example.
-	"mm_sublime" : "/usr/bin/sublime",
-
-	// If `doxygen` is not in your PATH, please specify the full path of the Doxygen binary.
-	// OSX: doxygen is already included in this package.
-	// Windows: Use slashes instead of backslashes. `C:/Program Files/doxygen/doxygen.exe` for example.
-	// "mm_doxygen" : "doxygen",
+	 "mm_sublime" : "sublime",
 
 	//set to location where you wish your MavensMate project to reside (must be an existing directory)
 	//for example: "/Users/username/Documents/workspaces/mavensmate" (notice the absolute path)
-	"mm_workspace" : "/media/manan/Extra/sub_workspace",
+	"mm_workspace" : "",
 
 	//set to desired Salesforce.com API version
 	"mm_api_version" : "27.0",
@@ -49,7 +36,7 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 	"mm_autocomplete" : true,
 
 	//if true, MavensMate will check for updates when Sublime Text starts
-	"mm_check_for_updates" : true,
+	"mm_check_for_updates" : false,
 
 	//possible values: CRITICAL, ERROR, WARNING, DEBUG, INFO
 	"mm_log_level" : "INFO",
@@ -61,11 +48,11 @@ To override default MavensMate settings, modify user-specific settings (MavensMa
 	"mm_send_usage_statistics" : true,
 
 	//the location of MavensMate.app
-	"mm_app_location" : "/home/manan/.config/sublime-text-2/Packages/MavensMate/support/linux32/mmserver/mmserver",
+	"mm_app_location" : "",
 
 	//the location of the mm command line tool (must be inside MavensMate.app)
-	"mm_location" : "/home/manan/.config/sublime-text-2/Packages/MavensMate/support/linux32/mm/mm",
+	"mm_location" : "",
 
 	//if true, MavensMate.app will start when Sublime Text starts
-	"mm_start_app_on_st_startup" : false
+	"mm_start_app_on_st_startup" : true
 }
