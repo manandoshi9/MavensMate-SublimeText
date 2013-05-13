@@ -178,7 +178,7 @@
 					<form style="margin-bottom:5px;">
 						<select id="tests" multiple="multiple" class="multiselect" style="display: none;">
 							{% for cls in classes %}
-							<option value="{{ cls }}">{{ cls }}</option>
+							<option value="{{ cls }}" {% if cls in selected %}selected{% endif %}>{{ cls }}</option>
 							{% endfor %}
 						</select>
 					</form>

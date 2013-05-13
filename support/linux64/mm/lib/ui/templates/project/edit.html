@@ -52,15 +52,15 @@
 		</div>
 		<div id="metadata">
 			<div id="project_wrapper">
-		<div id="treewrapper" style="height:100%">
-			<div id="tree">
-				<ul>
-					{{ tree_body }}
-				</ul>
-			</div>
-			<div id="info"></div>
-		</div>
-	</div>				
+				<div id="treewrapper" style="height:100%; padding-bottom:100px;">
+					<div id="tree">
+						<ul>
+							{{ tree_body }}
+						</ul>
+					</div>
+					<div id="info"></div>
+				</div>
+			</div>				
     	</div>
 	</div>
 </div>  
@@ -180,9 +180,13 @@
 			}
 		}
 			
-		$(function() {		   
-			//instantiate tabs
-			$('.tabs').tabs();
+		$(function() {		
+			$("#pn").val("{{ name }}");  
+			$("#un").val("{{ username }}");
+			$("#pw").val("{{ password }}");
+			$("#org_type").val("{{ org_type }}");
+			
+			$("#pn").prop('disabled', true);  
 			
 			var resizeHeight = $("#project_wrapper").height(); 
 		    resizeAndCenterWindowByHeight(resizeHeight);
@@ -190,42 +194,31 @@
 			$(window).resize(function() {
 				$("#project_wrapper").height($(window).height() - 175)
 			});  
-			
-			//ppw = ppw.gsub!(/'/, '\'').gsub!(/\"/, '\"')  
-			//pname = pname.gsub!(/'/, '\'').gsub!(/\"/, '\"')  
+			$(window).trigger('resize');
 
-			$("#pn").val("{{ name }}");  
-			$("#un").val("{{ username }}");
-			$("#pw").val("{{ password }}");
-			$("#org_type").val("{{ org_type }}");
-			
-			$("#pn").prop('disabled', true);  
-			//$("#un").prop('disabled', true);  
-			//$("#pw").prop('disabled', true);  
-			//$("#server_url").prop('disabled', true);  
-							
-			//resize elements
-			$("#project_wrapper").height($(window).height() - 175)
-			
-			$(window).resize(function() {
-				$("#project_wrapper").height($(window).height() - 175)
-			});
+			//instantiate tabs
+			$('.tabs').tabs();
 
-			if (!has_indexed_metadata) {
-				index_org();
-			} else {
-				$("#tree").dynatree({
-					persist: false,
-					checkbox: true,
-					selectMode: 3,
-					debugLevel: 0
-				});
-				$("#tree").dynatree("getRoot").visit(function(node) {
-					node.expand(false);
-				});  
-				rootNode = $("#tree").dynatree("getRoot");
-			}
-		});	
+			//brief pause
+			setTimeout(function(){	
+				if (!has_indexed_metadata) {
+					index_org();
+				} else {
+					$("#tree").dynatree({
+						persist: false,
+						checkbox: true,
+						selectMode: 3,
+						debugLevel: 0,
+						enableUpdate: false
+					});
+					$("#tree").dynatree().enableUpdate(false);
+					$("#tree").dynatree("getRoot").visit(function(node) {
+						node.expand(false);
+					});  
+					rootNode = $("#tree").dynatree("getRoot");
+				}
+			}, 200);
+		});
 
 	</script>
 

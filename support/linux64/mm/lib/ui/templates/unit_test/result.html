@@ -10,7 +10,7 @@
 		
 	<div class="alert-message block-message-custom" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
 			<p style="float:left;"><strong>{{ cls }}.cls</strong></p>
-			<p style="float:right;"><strong>{{ 'passing_tests' }}/{{ 'total_tests' }} tests passed</strong></p>
+			<p style="float:right;"><strong>{{ result['pass_fail'][cls]['pass'] }}/{{ result['pass_fail'][cls]['pass']+result['pass_fail'][cls]['fail'] }}&nbsp;tests passed</strong></p>
 		<div style="clear:both;"></div>	
 	</div>
 	<table class="bordered-table test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
@@ -37,7 +37,7 @@
 							{{ test['message'] }} 
 						{% endif %}
 						{% if 'stackTrace' in test -%}
-							<a onclick="$('#modal_{{ loop.index }}').modal('toggle')" href="#">[Stack Trace]</a>
+							&nbsp;<a onclick="$('#modal_{{ loop.index }}').modal('toggle')" href="#">[Stack Trace]</a>
 							<div class="modal" style="display:none;" id="modal_{{ loop.index }}">
 								<div class="modal-header">
 					            	<a href="#" class="close">×</a>
@@ -49,7 +49,7 @@
 									</div>
 					          	</div>
 								<div class="modal-footer">
-									<a href="#" onclick="$('#modal_{{ loop.index }}').modal('hide')" class="btn primary">OK</a>
+									<a href="#" onclick="$('#modal_{{ loop.index }}').modal().close()" class="btn primary">OK</a>
 								</div>
 							</div>
 						{%- endif %}

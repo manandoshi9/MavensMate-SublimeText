@@ -2,24 +2,16 @@
 {% block yield %}
 <div id="result_output">
 	<div id="result_wrapper" style="padding:0px 10px;">
-		<div class="alert-message error" style="display:none;">
-			<p><strong>Error!</strong> The creation of your new project failed.</p>
-		</div>
-		<div id="error" style="margin:5px 0px 15px 0px;" class="alert-message error">
+		<div style="margin:5px 0px 15px 0px;" class="alert-message error">
 			<p><strong id="error_message"></strong></p>
 	  	</div>
 	</div>
 </div>
 
 <div class="content">
-	
-	<div class="alert-message error" style="display:none;" data-alert="alert" id="cred_alert">
-		<a class="close" href="#">x</a>
-		<p><strong>Error!</strong> You need to provide valid Salesforce.com credentials in Project Details.</p>
-	</div>
-	 
+		 
 	<ul class="tabs">
-		<li class="active"><a id="project_details_tab" href="#form">Details</a></li>
+		<li class="active"><a id="project_details_tab" href="#form" data-toggle="tab">Details</a></li>
 		{% if user_action == "new" %}
 		<li><a href="#metadata">Metadata</a></li>
 		{% endif %}

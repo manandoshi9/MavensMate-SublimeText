@@ -118,12 +118,7 @@ class SforceMetadataClient(SforceBaseClient):
                 for i, metadata_type in enumerate(package):
                     #print i, metadata_type
                     #print package[metadata_type]
-                    member_value = None
-                    if package[metadata_type] == "*":
-                        member_value = "*"
-                    elif type(package[metadata_type]) == list:
-                        member_value = package[metadata_type]
-
+                    member_value = package[metadata_type]
                     type_array.append({ "name" : metadata_type, "members" : member_value })
 
                 package = {

@@ -441,18 +441,25 @@
 			return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
 		};
 
+		var txtFilterTimeout = 0;
 		$("#txtFilter")
 		.change(function() {
-			var filter = $(this).val(); 
-	        if (filter) {
-	        	$("#btnClearFilter").css({opacity: 1.0, visibility: "visible"})
-	        	expandAll();        	
-	        	filter_tree(filter);				
-	        } else {
-	        	$("#btnClearFilter").css({opacity: 0.0, visibility: "invisible"})
-	        	clearFilter();
-	        }
-	        return false;
+			var abort_time = 150; // if it changes within this time, abort and dont filter
+			if (txtFilterTimeout!=0){
+				clearTimeout(txtFilterTimeout)
+			}
+			txtFilterTimeout = setTimeout(function(){
+				var filter = $("#txtFilter").val();
+		        if (filter) {
+		        	$("#btnClearFilter").show()
+		        	expandAll();        	
+		        	filter_tree(filter);				
+		        } else {
+		        	$("#btnClearFilter").hide()
+		        	clearFilter();
+		        }
+			}, abort_time);
+	        //return false;
 	    })
 		.keyup(function() {
 	        // fire the above change event after every letter	
