@@ -57,6 +57,7 @@ def mm_call(operation, mm_debug_panel=True, **kwargs):
     if operation != 'new_project' and operation != 'new_project_from_existing_directory' and is_project_legacy() == True:
         operation = 'upgrade_project'
     if not os.path.exists(settings.get('mm_location')):
+        print settings.get('mm_location')
         active_window_id = sublime.active_window().id()
         printer = PanelPrinter.get(active_window_id)
         printer.show()
