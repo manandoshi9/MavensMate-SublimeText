@@ -56,8 +56,7 @@ def mm_call(operation, mm_debug_panel=True, **kwargs):
     settings = sublime.load_settings('mavensmate.sublime-settings')
     if operation != 'new_project' and operation != 'new_project_from_existing_directory' and is_project_legacy() == True:
         operation = 'upgrade_project'
-    if not os.path.exists(settings.get('mm_location')):
-        print settings.get('mm_location')
+    if not os.path.exists( os.path.expanduser ( settings.get('mm_location') ) ) :
         active_window_id = sublime.active_window().id()
         printer = PanelPrinter.get(active_window_id)
         printer.show()
@@ -132,7 +131,7 @@ def mm_call(operation, mm_debug_panel=True, **kwargs):
         operation, 
         project_name=get_project_name(), 
         active_file=get_active_file(), 
-        mm_location=settings.get('mm_location'),
+        mm_location= os.path.expanduser ( settings.get('mm_location') ),
         params=params
     )
 
@@ -483,7 +482,9 @@ def start_mavensmate_app():
         msg = p.stdout.read()
 
     if msg == None and int(processCount) == 1:
-        command = settings.get('mm_app_location') + " -m " + settings.get('mm_location')
+        mmLocation = os.path.expanduser ( settings.get('mm_app_location') )
+        mmServerLocation = os.path.expanduser ( settings.get('mm_location') )   
+        command = mmLocation + " -m " + mmServerLocation 
         subprocess.Popen( command.split() )
 
 class UsageReporter(threading.Thread):
