@@ -14,7 +14,7 @@ MavensMate for Sublime Text is a plugin that aims to replicate the functionality
 * Apex Code Assist (beta!!)
 
 #Install instructions (Linux only)
-
+ * Install sublime text using the information from http://www.technoreply.com/how-to-install-sublime-text-2-on-ubuntu-12-04-unity/
  * sudo apt-get install  python git chromium-browser
  * wget https://raw.github.com/manandoshi9/MavensMate-SublimeText/2.0/install.py
  * python install.py
