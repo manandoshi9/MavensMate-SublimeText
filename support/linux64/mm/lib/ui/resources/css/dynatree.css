@@ -157,10 +157,21 @@ span.dynatree-expander:hover
 {
 	background-position: -48px -80px;
 }
+
+span.dynatree-expander i  /* 'Loading' status overrides all others */
+{
+	display: none;
+	background-color: #fff;
+}
+
 .dynatree-loading span.dynatree-expander  /* 'Loading' status overrides all others */
 {
-	background-position: 0 0;
-	background-image: url("../images/loading.gif");
+	background-image: none !important;
+}
+
+.dynatree-loading span.dynatree-expander i  /* 'Loading' status overrides all others */
+{
+	display: inline-block;
 }
 
 

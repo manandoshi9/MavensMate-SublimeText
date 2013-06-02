@@ -8,12 +8,12 @@
 
 .ms-container .ms-selectable, .ms-container .ms-selection{
   background: #fff;
-  border: 1px #ccc solid;
+  border: 2px #ddd solid;
   float: left;
-  border-radius:         4px;
-  -webkit-border-radius: 4px;
-  -moz-border-radius:    4px;
-  -khtml-border-radius:  4px;
+  border-radius:         6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius:    6px;
+  -khtml-border-radius:  6px;
 }
 
 .ms-selected{

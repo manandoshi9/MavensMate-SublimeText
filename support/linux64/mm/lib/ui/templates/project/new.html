@@ -1,44 +1,38 @@
 {% extends "layouts/base.html" %}
 {% block yield %}
 <div id="result_output">
-	<div id="result_wrapper" style="padding:0px 10px;">
-		<div style="margin:5px 0px 15px 0px;" class="alert-message error">
-			<p><strong id="error_message"></strong></p>
-	  	</div>
+	<div class="alert alert-error">
+		<button type="button" class="close fui-cross"></button>
+		<span id="error_message"></span>
 	</div>
 </div>
 
 <div class="content">
 		 
-	<ul class="tabs">
-		<li class="active"><a id="project_details_tab" href="#form" data-toggle="tab">Details</a></li>
-		{% if user_action == "new" %}
-		<li><a href="#metadata">Metadata</a></li>
-		{% endif %}
+	<ul class="nav nav-tabs nav-append-content">
+		<li class="active"><a id="project_details_tab" href="#form" data-toggle="tab">Project Details</a></li>
+		<li><a href="#metadata" data-toggle="tab">Project Metadata</a></li>
 	</ul>
 	
-	<div class="pill-content">
-		<div id="form" class="active">
+	<div class="tab-content" id="main-tab-content">
+		<div id="form" class="tab-pane active">
 			<form class="form-stacked">
 				<input type="hidden" value="" id="sid"/>
 				<input type="hidden" value="" id="metadata_server_url"/>
 				<input type="hidden" value="" id="server_url"/>
 				<fieldset>
-					<div class="clearfix">
-						<label for="pn">Project Name</label> 
-						<input class="xlarge" size="100" type="text" id="pn">
+					<div class="control-group large">
+						<input class="span12" placeholder="Project Name" type="text" id="pn">
 					</div>
-					<div class="clearfix">
-						<label for="un">Salesforce Username</label> 
-						<input class="xlarge" size="100" type="text" id="un">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Username" type="text" id="un">
 					</div>
-					<div class="clearfix">
-						<label for="pw">Salesforce Password</label> 
-						<input class="xlarge" size="100" type="password" id="pw">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Password" type="password" id="pw">
 					</div>
-					 <div class="clearfix">
-						<label for="org_type">Salesforce Org Type</label> 
-						<select id="org_type">
+
+					 <div class="control-group large">
+						<select id="org_type" class="info">
 							<option value="production">Production</option>
 							<option value="developer">Developer</option>
 							<option value="sandbox">Sandbox</option>
@@ -48,61 +42,8 @@
 				</fieldset>
 			</form>
 		</div>
-		<!--
-		<div id="vc">
-			<div id="form" class="active">
-				<form class="form-stacked">
-					<fieldset>					   
-						<div class="clearfix">
-							<label for="vc_type">Version Control</label> 
-							<select id="vc_type">  							
-								<option>SVN</option>
-								<option>Git</option>
-							</select>
-						</div>
-						<div class="clearfix" id="svn_un_wrapper">
-							<label for="svn_un">SVN Username</label> 
-							<input class="xlarge" size="100" type="text" id="svn_un">
-						</div>				
-						<div class="clearfix" id="svn_pw_wrapper">
-							<label for="svn_pw">SVN Password</label> 
-							<input class="xlarge" size="100" type="password" id="svn_pw">
-						</div>
-						<div class="clearfix" id="git_alias_wrapper" style="display:none;">
-							<label for="vc_alias">Git Alias</label> 
-							<input class="xlarge" size="100" type="text" id="vc_alias"> 
-						</div>   					
-						<div class="clearfix" style="position:relative;">
-							<label for="vc_url">URL</label> 
-							<input style="padding-right:65px;" class="xlarge" size="100" type="text" id="vc_url">
-                            <a href="#" id="btnExplore" onclick="get_vc_list();" class="btn small" style="position:absolute;top:24px;right:29px;padding:4px 7px 4px;">Explore</a>
-						</div>
-						<div class="clearfix" id="git_branch_wrapper" style="display:none;">
-							<label for="vc_branch">Git Branch</label> 
-							<input class="xlarge" size="100" type="text" id="vc_branch"> 
-						</div>								
-					    <div class="clearfix" style="position:relative;" id="vc_tree_wrapper">
-							<div id="vc_tree" style="margin-top:5px;width:259px;border:1px solid #CCC;border-radius:3px;height:180px;overflow-y:auto;padding:5px;">
-
-							</div>
-							<div id="tree_loader" style="">
-								<img src="file:///{{ base_path + '/lib/ui/resources/images/big_loading.gif' }}"/>
-							</div> 
-						</div>   
-					</fieldset>
-				</form>
-			</div>
-		</div>
-		-->
-		{% if user_action == "new" %}
-		<div id="metadata">
-			<!-- <div id="filter">
-				<div class="select-wrapper" style="position:absolute;top:10px;left:5px;width:165px;text-align:right;">
-					<a href="#" id="btnSelectAll" class="btn small" style="font-weight:normal;padding:4px 7px 4px;">All</a>
-					<a href="#" id="btnDeselectAll" class="btn small" style="font-weight:normal;padding:4px 7px 4px;">None</a>
-					<a href="javascript:void(0)" id="btnRefresh" style="font-weight:normal;padding:4px 7px 4px;" class="btn success small" onclick="refresh_index()">Refresh</a>
-				</div>
-			</div> -->
+		
+		<div id="metadata" class="tab-pane">
 			<div id="project_wrapper">
 				<div id="treewrapper">
 					<div id="tree"></div>
@@ -110,27 +51,18 @@
 				</div> 
 			</div>
 		</div>
-		{% endif %}		
 	</div>
-	
 </div>
 
-<form class="form-stacked" id="action_buttons">
-	<fieldset style="padding-top:0px;">
-		<div class="actions">					
-			{% if user_action == "new" %}
-				<input type="button" id="btnSubmit" class="btn primary" value="Create Project"  onclick='new_custom_project();'>
-			{% endif %}
-			{% if user_action == "checkout" %}
-				<input type="button" id="btnSubmit" class="btn primary" value="Checkout Project"  onclick='checkout_project();'>
-			{% endif %}
-			&nbsp;
-			<button type="reset" class="btn" onclick="window.close();">Cancel</button>
-		</div>
-	</fieldset>
-</form>
+{% endblock %}
 
 
+{% block buttons %}					
+	<input type="button" id="btnSubmit" class="btn btn-info" value="Create Project"  onclick='new_custom_project();'>
+	<button class="btn" onclick="window.close();">Cancel</button>
+{% endblock %}
+
+{% block body_js %}
 
 	<script type="text/javascript">
 		var response;
@@ -160,21 +92,21 @@
 		}
 
 		function handle_response(response) {
-			if (operation == "checkout" || operation == "new") {
+			if (operation == "new") {
 				if (response["success"] == false) {
-					$("#error_message").html(response["body"])
-					$("#result_output").show()
+					show_message(response["body"])
+					notify_sound()
 				}
 				hideLoading();
 			} else if (operation == "check_creds") {
 				if (response["success"] == false) {
-					$("#error_message").html(response["body"])
-					$("#result_output").show()
+					show_message(response["body"])
+					notify_sound()
 				} else {
 					$('#sid').val(response["sid"])	
 					$('#metadata_server_url').val(response["metadata_server_url"])
 					$('#server_url').val(response["server_url"])
-					$("#result_output").hide()
+					hide_message()
 				}
 				hideLoading();
 			}
@@ -182,38 +114,15 @@
 	
 		var user_action = "{{ user_action }}";
 			
-		$(function() {		   						
-			$("#project_wrapper").height($(window).height() - 175)
-			
-			var resizeHeight = $("#form").height(); 
-		    resizeAndCenterWindowByHeight(resizeHeight+250);
-			
+		$(function() {		   									
+		    
 			$(window).resize(function() {
-				$("#project_wrapper").height($(window).height() - 175)
+				resizeProjectWrapper(10)
 			});
-			
-			//resize window if dom element is removed (in this case error message)
-			$( "body" ).bind(
-				"DOMNodeRemoved",
-				function( event ) {
-					if (event.target.id == "result_wrapper") {
-						window.resizeTo(325, document.getElementById('wrapper').offsetHeight+72);
-						$("#project_details_tab").click();
-					}
-				}
-			);
-									
-			//submit form on enter
-			$("#deploy_output").bind('keyup', function(e) {
-				var code = (e.keyCode ? e.keyCode : e.which);
-				 if(code == 13) { //enter pressed
-				 	if ($('#un').val() && $('#pw').val() && $('#pn').val())
-						$("#btnSubmit").click();
-				 }
-			}); 
-			
-			$('.tabs').tabs();
-			
+
+			window.resizeTo(520, 620)
+			centerWindow()
+
 			//submit form on enter
 			$(".content").bind('keyup', function(e) {
 				var code = (e.keyCode ? e.keyCode : e.which);
@@ -223,13 +132,10 @@
 				 }
 			});  
 			
-			
 			//when user changes tab to metadata selection, use provided creds to login and get session id
-			$('.tabs a').bind('change', function (e) {
-				console.log(e.target.href.indexOf("metadata"))
-				if (e.target.href.indexOf("metadata") != -1 && user_action == "checkout") {
-					//return;
-				} else if (e.target.href.indexOf("metadata") != -1 && ($('#sid').val() == null || $('#sid').val() == "")) {
+			$('a[data-toggle="tab"]').on('shown', function (e) {
+				//console.log(e.target.href.indexOf("metadata"))
+				if (e.target.href.indexOf("metadata") != -1 && ($('#sid').val() == null || $('#sid').val() == "")) {
 					console.log('checking creds');
 					operation = "check_creds"
 					$.ajax({
@@ -247,18 +153,20 @@
 								var response = JSON.parse(data.responseText)
 								if (response["success"] == false) {
 									$("#project_details_tab").click();
-									$("#error_message").html(response["body"])
-									$("#result_output").show()
+									show_message(response["body"]);
+									notify_sound();
 								} else {
 									instantiate_metadata_tree(response["metadata"])
 									$('#sid').val(response["sid"])	
 									$('#metadata_server_url').val(response["metadata_server_url"])
 									$('#server_url').val(response["server_url"])
-									$("#result_output").hide()
+									hide_message()
 								}
+								resizeProjectWrapper(10);
 								hideLoading();
 							} catch(e) {
-								show_global_error('The local MavensMate server did not respond properly. This likely means it is not running or it is malfunctioning. If MavensMate.app is not running, please start it. Otherwise, try restarting MavensMate.app.');
+								show_message('The local MavensMate server did not respond properly. This likely means it is not running or it is malfunctioning. If MavensMate.app is not running, please start it. Otherwise, try restarting MavensMate.app.');
+								notify_sound();
 								hideLoading();
 							}
 							
@@ -266,16 +174,9 @@
 				 	});
 				}
 		    });
-			
-			//dispatch({controller: 'project', action: 'start_tcp_server' });  
+
 		});
-		
-		//shows an error if the user has not entered creds		
-		function showCredAlert() {
-			$("#cred_alert").show();
-			window.resizeTo(325, document.getElementById('wrapper').offsetHeight+30);
-		} 
-				
+						
 		var tree_children = ""
 		
 		function instantiate_metadata_tree(metadata) {
@@ -293,14 +194,13 @@
 					metadata['metadataObjects'][i]['select'] = true
 				}
 			}
-			console.log(metadata)
 
 			//instantiate and populate metadata tree				
 	    	$("#tree").dynatree({
           		onQueryExpand: function(node) {
 					//console.log($('#sid'))
 					if ( $('#sid').val() == null || $('#sid').val() == "") {
-						showCredAlert();
+						show_message("Please authenticate to Salesforce.com")
 						return false;
 					}
          		},
@@ -337,13 +237,9 @@
 			 	selectMode: 3,
 				children: metadata['metadataObjects']
       		}); 
+			resizeProjectWrapper(10)
 		}
 
 
 	</script>
-	<style>
-		#result_output {
-			display:none;
-		}
-	</style>
 {% endblock %}

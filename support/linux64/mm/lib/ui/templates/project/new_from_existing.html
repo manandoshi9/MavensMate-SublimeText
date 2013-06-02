@@ -1,43 +1,37 @@
 {% extends "layouts/base.html" %}
 {% block yield %}
 <div id="result_output">
-	<div id="result_wrapper" style="padding:0px 10px;">
-		<div class="alert-message error" style="display:none;">
-			<p><strong>Error!</strong> The creation of your new project failed.</p>
-		</div>
-		<div id="error" style="margin:5px 0px 15px 0px;" class="alert-message error">
-			<a class="close" href="#"> x </a>
-			<p><strong id="error_message"></strong></p>
-	  	</div>
+	<div class="alert alert-error">
+		<button type="button" class="close fui-cross"></button>
+		<span id="error_message"></span>
 	</div>
 </div>
 
 <div class="content">	 
-	<ul class="tabs">
-		<li class="active"><a id="project_details_tab" href="#form">Details</a></li>		
+
+	<ul class="nav nav-tabs nav-append-content">
+		<li class="active"><a id="project_details_tab" href="#form" data-toggle="tab">Project Details</a></li>
 	</ul>
 	
-	<div class="pill-content">
-		<div id="form" class="active">
+	<div class="tab-content" id="main-tab-content">
+		<div id="form" class="tab-pane active">
 			<form class="form-stacked">
 				<input type="hidden" value="" id="sid"/>
 				<input type="hidden" value="" id="murl"/>
+
 				<fieldset>
-					<div class="clearfix">
-						<label for="pn">Project Name</label> 
-						<input class="xlarge" size="100" type="text" id="pn" value="{{ project_name }}" disabled="disabled">
+					<div class="control-group large">
+						<input class="span12" placeholder="Project Name" type="text" id="pn" value="{{ project_name }}">
 					</div>
-					<div class="clearfix">
-						<label for="un">Salesforce Username</label> 
-						<input class="xlarge" size="100" type="text" id="un">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Username" type="text" id="un">
 					</div>
-					<div class="clearfix">
-						<label for="pw">Salesforce Password</label> 
-						<input class="xlarge" size="100" type="password" id="pw">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Password" type="password" id="pw">
 					</div>
-					 <div class="clearfix">
-						<label for="org_type">Salesforce Org Type</label> 
-						<select id="org_type">
+
+					 <div class="control-group large">
+						<select id="org_type" class="info">
 							<option value="production">Production</option>
 							<option value="developer">Developer</option>
 							<option value="sandbox">Sandbox</option>
@@ -45,23 +39,25 @@
 						</select>
 					</div>  
 				</fieldset>
+
+
 			</form>
 		</div>
 	</div>
 	
 </div>
 
-<form class="form-stacked" id="action_buttons">
-	<fieldset style="padding-top:0px;">
-		<div class="actions">					
-			<input type="button" id="btnSubmit" class="btn primary" value="Create Project"  onclick='new_project();'>
-			&nbsp;
-			<button type="reset" class="btn" onclick="window.close();">Cancel</button>
-		</div>
-	</fieldset>
-</form>
-
 <input type="hidden" value="{{ directory }}" id="directory"/>
+
+{% endblock %}
+
+
+{% block buttons %}					
+	<input type="button" id="btnSubmit" class="btn btn-info" value="Create Project"  onclick='new_project();'>
+	<button type="reset" class="btn" onclick="window.close();">Cancel</button>
+{% endblock %}
+
+{% block body_js %}
 
 	<script type="text/javascript">
 		var response;
@@ -109,37 +105,10 @@
 		}
 				
 		$(function() {		   						
-			$("#project_wrapper").height($(window).height() - 175)
 			
-			var resizeHeight = $("#form").height(); 
-		    resizeAndCenterWindowByHeight(resizeHeight+250);
-			
-			$(window).resize(function() {
-				$("#project_wrapper").height($(window).height() - 175)
-			});
-			
-			//resize window if dom element is removed (in this case error message)
-			$( "body" ).bind(
-				"DOMNodeRemoved",
-				function( event ) {
-					if (event.target.id == "result_wrapper") {
-						window.resizeTo(325, document.getElementById('wrapper').offsetHeight+72);
-						$("#project_details_tab").click();
-					}
-				}
-			);
-									
-			//submit form on enter
-			$("#deploy_output").bind('keyup', function(e) {
-				var code = (e.keyCode ? e.keyCode : e.which);
-				 if(code == 13) { //enter pressed
-				 	if ($('#un').val() && $('#pw').val() && $('#pn').val())
-						$("#btnSubmit").click();
-				 }
-			}); 
-			
-			$('.tabs').tabs();
-			
+		    window.resizeTo(520, 620)
+		    centerWindow()
+											
 			//submit form on enter
 			$(".content").bind('keyup', function(e) {
 				var code = (e.keyCode ? e.keyCode : e.which);
@@ -151,9 +120,4 @@
 		});
 	
 	</script>
-	<style>
-		#result_output {
-			display:none;
-		}
-	</style>
 {% endblock %}

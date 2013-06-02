@@ -1,184 +1,180 @@
-<ul class="tabs deploy_wrapper_tabs">
-	{% for destination in args['destinations'] %}
-		{% if loop.first == True  %}
-		<li class="active"><a href="#result-{{ loop.index0 }}">{{ destination['username'] }}</a></li>
-		{% else %}
-		<li class=""><a href="#result-{{ loop.index0 }}">{{ destination['username'] }}</a></li>
-		{% endif %}
-	{% endfor %}
-</ul>
-<div class="pill-content" id="deploy_result_wrapper">
-{% for result in deploy_results %}
-<div class="result_wrapper" style="padding:10px;">
-	{% if result['success'] == True %}
-		<div class="alert-message success">
-			{% if args['is_check_only'] == True %}
+<div id="destination_options">
+	<ul>
+		{% for destination in args['destinations'] %}
+			{% if loop.first == True  %}
+			<li class="active"><a href="#result-{{ loop.index0 }}">{{ destination['username'] }}</a></li>
+			{% else %}
+			<li class=""><a href="#result-{{ loop.index0 }}">{{ destination['username'] }}</a></li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+</div>
+
+<div id="extra_tabs">
+	{% for result in deploy_results %}
+	<div class="tab-pane result_wrapper" id="result-{{ loop.index0 }}" style="padding:10px;">
+		{% if result['success'] == True %}
+			
+			{% if args['check_only'] == True %}
 				{% set deploy_type = "validation"  %}
 				{% set further_instruction = " Click \"Deploy to Server\" to complete deployment." %}
 			{% else %}
 				{% set deploy_type = "deployment"  %}
 				{% set further_instruction = ""  %}
 			{% endif %}
-			<p><strong>Success!</strong>{{' '}}Your{{' '}}{{ deploy_type }}{{' '}}completed{{' '}}successfully.{{' '}}{{ further_instruction }}</p>
-			<script type="text/javascript">
-				$("#check_only").attr('checked', false);
-				$("#btnDeploy").val('Deploy to Server');
-			</script>
-		</div>
-	{% endif %}
-	{% if result['success'] == False %}
-		<div id="error_message" class="alert-message error">
-			<p><strong>Deployment Failed!</strong>&nbsp;</p>
-		</div> 
-	{% endif %}
-	
-	<div class="result_table_class" style="-webkit-border-radius: 4px 4px 4px 4px;overflow-y:auto;padding:0px;border:2px solid #ccc;">
-		
-		{% if result['messages']|length > 0 %}
-		<div style="padding:5px 10px;background-color:#f2f2f2;border-bottom:2px solid #ccc;cursor:pointer;" onclick="$('#{{ result['id'] }}-table').toggle();">Deploy Messages</div>			
-		<table id="{{ result['id'] }}-table" class="bordered-table test_result" style="-webkit-border-radius: 4px 4px 4px 4px;border:none;margin-bottom:0px;border-bottom:1px solid #ddd">
-			<thead>
-				<tr>
-					<th>Metadata</th>
-					<th>Result</th>
-					<th>Message</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for message in result['messages'] %}
-					{% set file_name = message['fileName'] %}
-					{% set fns = message['fileName'].split("/") %}
-					{% set file_name = fns[fns|length - 1] %}
-					{% if file_name != "package.xml" %}
-					<tr>
-						<td style="width:210px;">{{ file_name }}</td>
-						<td style="width:45px;">
-							{% if message['success'] ==  False %}
-								<span class="label important">Failed</span>
-							{% else %}
-								<span class="label success">Success</span>
-							{% endif %}
-						</td>
-						<td>
-							{% if message['success'] == False %}
-								{{ message['problem'] }} 
-								{% if 'lineNumber' in message %}
-									[Line: {{ message['lineNumber'] }}, Column: {{ message['columnNumber'] }}]
-								{% endif %}
-							{% endif %}
-						</td>
-					</tr>
-					{% endif %}
-				{% endfor %}
-			</tbody>
-		</table>
-	    {% endif %}
 
-	    {% if 'log' in result %}
-		<div style="padding:5px 10px;background-color:#f2f2f2;border-bottom:2px solid #ccc;cursor:pointer;" onclick="$('#{{ result['id'] }}-log').toggle();">Deploy Log</div>			
-			<div id="{{ result['id'] }}-log" class="log" style="padding:10px;border-bottom:2px solid #ccc">
-				{{ htmlize(result['log']) }}
-			</div>
-	    {% endif %}
-		
-		{% if 'parsedTestResults' in result %} 
+			<div class="alert alert-success">
+				<button type="button" class="close fui-cross" data-dismiss="alert"></button>
+				<i class="icon-ok-sign icon-2x pull-left"></i>
+				<strong>Success!</strong>{{' '}}Your{{' '}}{{ deploy_type }}{{' '}}completed{{' '}}successfully.{{' '}}{{ further_instruction }}</p>
+			</div> 
 
-			{% if 'failures' in result['parsedTestResults'] and result['parsedTestResults']['failures']|length > 0 %} 
-				<div style="padding:5px 10px;background-color:#f2f2f2;border-bottom:2px solid #ccc;cursor:pointer;" onclick="$('#test_failures_result_table').toggle();">Test Failures</div>			
-			<table id="test_failures_result_table" class="bordered-table test_result" style="-webkit-border-radius: 4px 4px 4px 4px;border:none;margin-bottom:0px;border-bottom:1px solid #ddd">
+		{% endif %}
+		{% if result['success'] == False %}
+			<div class="alert alert-error">
+				<button type="button" class="close fui-cross" data-dismiss="alert"></button>
+				<i class="icon-exclamation-sign icon-2x pull-left"></i>
+				Deployment Failed!
+			</div> 
+		{% endif %}
+		
+		<div class="result_table_class">
+			
+			{% if result['messages']|length > 0 %}
+			<div class="deploy-category" onclick="$('#{{ result['id'] }}-table').toggle();"><i class="icon-info-sign"></i>&nbsp;Deploy Messages</div>			
+			<table id="{{ result['id'] }}-table" class="table table-striped test_result">
 				<thead>
 					<tr>
-						<th>Class</th>
-						<th>Method</th>
+						<th>Metadata</th>
 						<th>Result</th>
 						<th>Message</th>
 					</tr>
 				</thead>
 				<tbody>
-					{% for f in result['parsedTestResults']['failures'] %}
+					{% for message in result['messages'] %}
+						{% set file_name = message['fileName'] %}
+						{% set fns = message['fileName'].split("/") %}
+						{% set file_name = fns[fns|length - 1] %}
+						{% if file_name != "package.xml" %}
 						<tr>
-							<td style="width:210px;">{{ f['name'] }}</td>
-							<td style="width:210px;">{{ f['methodName'] }}</td>
+							<td style="width:210px;">{{ file_name }}</td>
 							<td style="width:45px;">
-								<span class="label important">Failed</span>
+								{% if message['success'] ==  False %}
+									<span class="label label-important">Failed</span>
+								{% else %}
+									<span class="label label-success">Success</span>
+								{% endif %}
 							</td>
 							<td>
-								{{ f['message'] }}
+								{% if message['success'] == False %}
+									{{ message['problem'] }} 
+									{% if 'lineNumber' in message %}
+										[Line: {{ message['lineNumber'] }}, Column: {% if 'columnNumber' in message %}{{ message['columnNumber'] }}{% endif %}]
+									{% endif %}
+								{% endif %}
 							</td>
 						</tr>
+						{% endif %}
 					{% endfor %}
 				</tbody>
 			</table>
-			{% endif %}
+		    {% endif %}
 
-			{% if 'codeCoverageWarnings' in result and result['parsedTestResults']['codeCoverageWarnings']|length > 0 %} 
-				<div style="padding:5px 10px;background-color:#f2f2f2;border-bottom:2px solid #ccc;cursor:pointer;" onclick="$('#coverage_result_table').toggle();">Code Coverage Warnings</div>			
-				<table id="coverage_result_table" class="bordered-table test_result" style="-webkit-border-radius: 4px 4px 4px 4px;border:none;margin-bottom:0px;border-bottom:1px solid #ddd">
-					<thead>
-						<tr>
-							<th>Metadata</th>
-							<th>Result</th>
-							<th>Message</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for warning in result['parsedTestResults']['codeCoverageWarnings'] %}
-							<tr>
-								<td style="width:210px;">{{ warning['name'] }}</td>
-								<td style="width:45px;">
-									<span class="label warning">Warning</span>
-								</td>
-								<td>
-									{{ warning['message'] }}
-								</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-		        {% endif %}
+		    {% if 'log' in result %}
+			<div class="deploy-category" onclick="$('#{{ result['id'] }}-log').toggle();"><i class="icon-file-alt"></i>&nbsp;Deploy Log</div>			
+				<div id="{{ result['id'] }}-log" class="log" style="padding:10px;border-bottom:2px solid #ddd">
+					{{ htmlize(result['log']) }}
+				</div>
+		    {% endif %}
+			
+			{% if 'parsedTestResults' in result %} 
 
-				{% if 'successes' in result and result['parsedTestResults']['successes']|length > 0 %} 
-				<div style="padding:5px 10px;background-color:#f2f2f2;border-bottom:2px solid #ccc;cursor:pointer;" onclick="$('#test_successes_result_table').toggle();">Test Successes</div>			
-				<table id="test_successes_result_table" class="bordered-table test_result" style="-webkit-border-radius: 4px 4px 4px 4px;border:none;margin-bottom:0px;border-bottom:1px solid #ddd">
-					<thead>
-						<tr>
-							<th>Class</th>
-							<th>Method</th>
-							<th>Result</th>
-							<th>Message</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for s in result['parsedTestResults']['successes'] %}
+				{% if 'failures' in result['parsedTestResults'] and result['parsedTestResults']['failures']|length > 0 %} 
+					<div class="deploy-category" onclick="$('#{{ result['id'] }}-test-failures').toggle();"><i class="icon-thumbs-down"></i>&nbsp;Test Failures</div>			
+					<table id="{{ result['id'] }}-test-failures" class="table table-striped test_result">
+						<thead>
 							<tr>
-								<td style="width:210px;">{{ s['name'] }}</td>
-								<td style="width:210px;">{{ s['methodName'] }}</td>
-								<td style="width:45px;">
-									<span class="label success">Success</span>
-								</td>
-								<td>
-									{{ s['message'] }}
-								</td>
+								<th>Class</th>
+								<th>Method</th>
+								<th>Result</th>
+								<th>Message</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{% for f in result['parsedTestResults']['failures'] %}
+								<tr>
+									<td style="width:210px;">{{ f['name'] }}</td>
+									<td style="width:210px;">{{ f['methodName'] }}</td>
+									<td style="width:45px;">
+										<span class="label label-important">Failed</span>
+									</td>
+									<td>
+										{{ f['message'] }}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
 				{% endif %}
 
-		{% endif %} 
+				{% if 'codeCoverageWarnings' in result and result['parsedTestResults']['codeCoverageWarnings']|length > 0 %} 
+					<div class="deploy-category" onclick="$('#{{ result['id'] }}-coverage-warnings').toggle();"><i class="icon-exclamation-sign"></i>&nbsp;Code Coverage Warnings</div>			
+					<table id="{{ result['id'] }}-coverage-warnings" class="table table-striped test_result">
+						<thead>
+							<tr>
+								<th>Metadata</th>
+								<th>Result</th>
+								<th>Message</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for warning in result['parsedTestResults']['codeCoverageWarnings'] %}
+								<tr>
+									<td style="width:210px;">{{ warning['name'] }}</td>
+									<td style="width:45px;">
+										<span class="label label-warning">Warning</span>
+									</td>
+									<td>
+										{{ warning['message'] }}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+			        {% endif %}
+
+					{% if 'successes' in result and result['parsedTestResults']['successes']|length > 0 %} 
+					<div class="deploy-category" onclick="$('#{{ result['id'] }}-test-successes').toggle();"><i class="icon-thumbs-up"></i>&nbsp;Test Successes</div>			
+					<table id="{{ result['id'] }}-test-successes" class="table table-striped test_result">
+						<thead>
+							<tr>
+								<th>Class</th>
+								<th>Method</th>
+								<th>Result</th>
+								<th>Message</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for s in result['parsedTestResults']['successes'] %}
+								<tr>
+									<td style="width:210px;">{{ s['name'] }}</td>
+									<td style="width:210px;">{{ s['methodName'] }}</td>
+									<td style="width:45px;">
+										<span class="label label-success">Success</span>
+									</td>
+									<td>
+										{{ s['message'] }}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+					{% endif %}
+
+			{% endif %} 
 
 
-	</div>			 
+		</div>			 
+	</div>
+	{% endfor %}
 </div>
-{% endfor %}
-</div>
-
-<script>
-	var i = 0
-	$(".result_wrapper").each(function() {
-		$(this).attr("id", "result-"+i)
-		i++
-	})
-	$('#deploy_result_wrapper div').first().addClass("active")
-	$('.tabs.deploy_wrapper_tabs').tabs()
-</script>

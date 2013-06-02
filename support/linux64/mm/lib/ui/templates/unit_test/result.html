@@ -1,19 +1,20 @@
 {% for w in result['codeCoverageWarnings'] -%}
 	{% if w['name'] == None -%}
-	<div class="alert-message block-message error">
-		<p><strong>{{ w['message'] }}</strong></p>
+	<div class="alert alert-error">
+		<span><i class="icon-exclamation-sign icon-2x pull-left"></i>&nbsp;{{ w['message'] }}</span>
 	</div>
 	{%- endif %}
 {%- endfor %}
 
 {% for cls, tests in result['results_normal'].items() -%}
 		
-	<div class="alert-message block-message-custom" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
+	<div class="alert-message block-message-custom white" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
 			<p style="float:left;"><strong>{{ cls }}.cls</strong></p>
 			<p style="float:right;"><strong>{{ result['pass_fail'][cls]['pass'] }}/{{ result['pass_fail'][cls]['pass']+result['pass_fail'][cls]['fail'] }}&nbsp;tests passed</strong></p>
 		<div style="clear:both;"></div>	
 	</div>
-	<table class="bordered-table test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
+
+	<table class="table table-striped test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
 		<thead>
 			<tr>
 				<th>Test Method</th>
@@ -27,9 +28,9 @@
 					<td style="width:210px;">{{ test['methodName'] }}</td>
 					<td style="width:45px;">
 						{% if 'stackTrace' not in test -%}
-							<span class="label success">Passed</span>
+							<span class="label label-small label-success">Passed</span>
 						{% else %}
-							<span class="label important">Failed</span>
+							<span class="label label-small label-important">Failed</span>
 						{%- endif %}
 					</td>
 					<td>
@@ -37,21 +38,8 @@
 							{{ test['message'] }} 
 						{% endif %}
 						{% if 'stackTrace' in test -%}
-							&nbsp;<a onclick="$('#modal_{{ loop.index }}').modal('toggle')" href="#">[Stack Trace]</a>
-							<div class="modal" style="display:none;" id="modal_{{ loop.index }}">
-								<div class="modal-header">
-					            	<a href="#" class="close">×</a>
-					            	<h3>Stack Trace</h3>
-					          	</div>
-								<div class="modal-body">
-									<div style="height:190px;overflow-y:auto;">
-										{{ test['stackTrace'] }}
-									</div>
-					          	</div>
-								<div class="modal-footer">
-									<a href="#" onclick="$('#modal_{{ loop.index }}').modal().close()" class="btn primary">OK</a>
-								</div>
-							</div>
+							<br/><br/>
+							<span class="label">Stack Trace</span><br/>{{ test['stackTrace'] }}
 						{%- endif %}
 					</td>
 				</tr>
@@ -62,11 +50,11 @@
 
 <div id="warnings_wrapper">
 	<!--  WARNINGS -->
-	<div class="alert-message block-message-custom" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
+	<div class="alert-message block-message-custom white" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
 			<p style="float:left;"><strong>Test Coverage Warnings</strong></p>
 		<div style="clear:both;"></div>	
 	</div>
-	<table class="bordered-table test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
+	<table class="table table-striped test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
 		<thead>
 			<tr>
 				<th>Metadata</th>
@@ -97,23 +85,19 @@
 		{% set extension = "cls"  %}
 		{% set directory = "classes" %}
 
-	<div class="alert-message block-message-custom " style="padding: 0px 5px 5px 5px;">
-	  	<div style="margin-bottom:10px;">
-			<p style="float:left;"><strong>{{ r['name'] }}.{{ extension }}</strong></p>
-			<p style="float:right;"><strong></strong></p>
+	<div class="alert alert-{{ coverage_class }}">
+	  	
+		<h3>{{ r['name'] }}.{{ extension }} </h3>
+
+		<div class="progress" style="height:22px;margin:10px 0px;">
+			<div class="bar bar-{{ coverage_class }}" style="width: {{ coverage }}%;"></div>
 		</div>
-		<div style="clear:both;"></div>
-		<p style="margin-bottom:10px;">
-			<div id="progress_bar" class="ui-progress-bar{{ " " }}ui-container" style="-webkit-border-radius: 8px;height: 22px;">
-	      		<div class="ui-progress{{ " " }}{{ coverage_class }}" style="-webkit-border-radius:8px;height:20px;width: {{ coverage }}%; display: {{ display }}; ">
-	        		<span style="font-size: 1.1em;line-height: 21px;" class="ui-label{{ " " }}{{ coverage_class }}">{{ coverage }}%</span>
-	      		</div>
-	    	</div>
-		</p>
-	  	<div class="alert-actions">
-	    	<a href="#" class="btn primary" data-toggle="toggle" 
-				onclick="toggleSourceButton(this, {{ loop.index }}, 'class')" style="padding: 3px 5px;font-size: .9em;">View Coverage</a>
-		</div>
+
+		<p>({{ coverage }}% covered)</p>
+
+		{% if does_file_exist(r['name'], 'ApexClass') == True -%}
+	    	<a href="#" class="btn btn-mini btn-info" onclick="toggleSourceButton(this, {{ loop.index }}, 'class')">Show Coverage</a>
+		{%- endif %}
 	</div>
 
 		{% if does_file_exist(r['name'], 'ApexClass') == True -%}
@@ -163,23 +147,18 @@
 		{% set extension = "trigger"  %}
 		{% set directory = "triggers" %}
 
-	<div class="alert-message block-message-custom " style="padding: 0px 5px 5px 5px;">
-	  	<div style="margin-bottom:10px;">
-			<p style="float:left;"><strong>{{ r['name'] }}.{{ extension }}</strong></p>
-			<p style="float:right;"><strong></strong></p>
+	<div class="alert alert-{{ coverage_class }}">
+	  	
+		<h3>{{ r['name'] }}.{{ extension }} </h3>
+
+		<div class="progress" style="height:22px;margin:10px 0px;">
+			<div class="bar bar-{{ coverage_class }}" style="width: {{ coverage }}%;"></div>
 		</div>
-		<div style="clear:both;"></div>
-		<p style="margin-bottom:10px;">
-			<div id="progress_bar" class="ui-progress-bar{{ " " }}ui-container" style="-webkit-border-radius: 8px;height: 22px;">
-	      		<div class="ui-progress{{ " " }}{{ coverage_class }}" style="-webkit-border-radius:8px;height:20px;width: {{ coverage }}%; display: {{ display }}; ">
-	        		<span style="font-size: 1.1em;line-height: 21px;" class="ui-label{{ " " }}{{ coverage_class }}">{{ coverage }}%</span>
-	      		</div>
-	    	</div>
-		</p>
-	  	<div class="alert-actions">
-	    	<a href="#" class="btn primary" data-toggle="toggle" 
-				onclick="toggleSourceButton(this, {{ loop.index }}, 'trigger')" style="padding: 3px 5px;font-size: .9em;">View Coverage</a>
-		</div>
+
+		<p>({{ coverage }}% covered)</p>
+		{% if does_file_exist(r['name'], 'ApexTrigger') == True -%}
+	    	<a href="#" class="btn btn-mini btn-info" onclick="toggleSourceButton(this, {{ loop.index }}, 'trigger')">Show Coverage</a>
+		{%- endif %}
 	</div>
 
 		{% if does_file_exist(r['name'], 'ApexTrigger') == True -%}
@@ -221,8 +200,12 @@
 
 
 <div id="log_wrapper" style="position:relative;">
-	<a href="javascript:void(0)" class="btn primary" onclick="$('#log_selector').selectText();" style="padding: 3px 5px;font-size: .9em;top:0;right:10px;position:absolute;">Select Log Text</a>
+	<a href="javascript:void(0)" class="btn btn-success" onclick="$('#log_selector').selectText();" style="padding: 3px 5px;font-size: .9em;top:0;right:10px;position:absolute;">Select Log Text</a>
 	<div style="padding:10px;" id="log_selector">
 		{{ htmlize(result['log']) }}
 	</div>
 </div>
+
+<script>
+	$(".stack-trace-tip").popover({})
+</script>

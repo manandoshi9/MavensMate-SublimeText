@@ -2117,7 +2117,7 @@ DynaTree.prototype = {
 		this.cache = {
 			tagEmpty: "<span class='" + opts.classNames.empty + "'></span>",
 			tagVline: "<span class='" + opts.classNames.vline + "'></span>",
-			tagExpander: "<span class='" + opts.classNames.expander + "'></span>",
+			tagExpander: "<span class='" + opts.classNames.expander + "'><i class='icon-spinner icon-spin'></i></span>",
 			tagConnector: "<span class='" + opts.classNames.connector + "'></span>",
 			tagNodeIcon: "<span class='" + opts.classNames.nodeIcon + "'></span>",
 			tagCheckbox: "<span class='" + opts.classNames.checkbox + "'></span>",

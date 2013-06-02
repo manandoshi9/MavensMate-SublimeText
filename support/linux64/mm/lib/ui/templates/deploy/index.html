@@ -1,19 +1,6 @@
 {% extends "layouts/base.html" %}
 {% block yield %}
 <style>
-	.bordered-table, .bordered-table td {
-	    -webkit-border-radius: 0px !important;
-		border-radius: 0px !important;
-	}
-
-	.bordered-table {
-		border-bottom:1px solid #ccc !important;
-	}
-
-	.chzn-choices {
-		border-radius: 3px !important;
-	}
-
 	.deploy_options label, .deploy_options div.divlabel {
 		width:180px;
 		font-weight: bold;
@@ -40,25 +27,8 @@
 		padding-top: 5px;
 		cursor: pointer;
 	}	
-	#filter {
-		background-color:#f7f7f7;
-		padding:5px;
-		border:1px solid #ccc;
-		border-bottom:none;
-		position:relative;
-	}
-
-	.block-message-custom {
-        background-image: none;
-        background-color: #F2F2F2;
-        filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
-        padding: 14px;
-        border-color: #CCC;
-        -webkit-box-shadow: none;
-        -moz-box-shadow: none;
-        box-shadow: none;
-    }    
-
+	
+  
 	table.test_result {
 		border-top:none;
 	}
@@ -67,34 +37,49 @@
 		line-height:1;
 	}  
 
+	#connection_error_wrapper {
+		display: none;
+	}
+
+	ul.nav .dropdown-menu {
+		width:300px;
+	}
+
 </style>
 <div id="result_output">
 	
 </div>
 
 <div class="content">
-	
-	<div class="alert-message error" style="display:none;" data-alert="alert" id="cred_alert">
-		<a class="close" href="#"> x </a>
-		<p><strong>Error!</strong> You need to provide valid Salesforce.com credentials in Project Details.</p>
-	</div>
+		
+	<ul class="nav nav-tabs nav-append-content" id="main-tabs">
+		<li class="active"><a href="#form" data-toggle="tab">Deploy Options</a></li>
+		<li><a href="#connections" data-toggle="tab">Org Connections</a></li>
+		<li>
+			<a href="#metadata" data-toggle="tab">
+				Metadata &nbsp;&nbsp;
+				<span onclick="refresh_index()" class="label" style="line-height:15px;cursor:pointer;">Refresh <i class="icon-refresh"></i></span> 	
+			</a>
+		</li>
+		<li><a href="#arcade" id="arcade_tab" data-toggle="tab">Arcade</a></li>
+		<li class="results_hidden dropdown active">
+      		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        		Deploy Results
+        		<b class="caret"></b>
+      		</a>
+      		<ul class="dropdown-menu" id="dropdown-destinations">
 
-	
-	<ul class="tabs">
-		<li class="active"><a href="#form">Deploy Options</a></li>
-		<li><a href="#connections">Org Connections</a></li>
-		<li><a href="#metadata">Metadata</a></li>
-		<li><a href="#result" id="result_tab">Result</a></li>
-		<li><a href="#arcade" id="arcade_tab">Arcade</a></li>
+      		</ul>
+    	</li>
 	</ul>
 	
-	<div class="pill-content">
-		<div id="form" class="active">
-			<form class="form-stacked">
+	<div class="tab-content" id="main-tab-content">
+		<div id="form" class="tab-pane active debug-tab-pane">
+			<form class="form-stacked" style="padding-top:10px;">
 				<fieldset>
 					<div class="clearfix">
-						<label for="un_list">Deployment Targets</label> 
-							<select style="width:90%;" id="un_list" multiple="multiple" data-placeholder="Select 1 or more connections...">
+						<label for="un_list" style="font-weight:bold;">Deployment Targets</label> 
+							<select name="huge" class="select-block mbl info" style="display:none;" id="un_list" multiple="multiple" data-placeholder="Select 1 or more connections...">
 								{% for c in connections %}
 									{% if loop.index0 == 0 %}
 										{% set selected = 'selected="selected"' %}
@@ -105,7 +90,6 @@
 										{{ c['username'] }}
 									</option>
 								{% endfor %} 
-								<!-- <option value="new">-- Custom Connection --</option> -->
 							</select>	
 					</div>			
 				</fieldset>
@@ -113,197 +97,210 @@
 
 			<form>
 				<fieldset class="deploy_options" style="margin:0;padding-top:0px;">
-					<div class="clearfix">
-						<label for="check_only" >Validate Only</label>
-						<input type="checkbox" id="check_only" style="margin:0px;width:32px;"/>
-					</div>
-					<div class="clearfix">
-						<label for="run_tests" >Run Tests</label>
-						<input type="checkbox" id="run_tests" style="margin:0px;width:32px;"/>
-					</div>
-					<div class="clearfix">
-						<label for="rollback" >Rollback on Error</label>
-						<input type="checkbox" id="rollback" style="margin:0px;width:32px;"/>			
-					</div>
-			    
-					<div class="clearfix">
-						<label for="select-Db" >Database Log Level</label>
-						<select id="select-Db">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-					<div class="clearfix">
-						<label for="select-Workflow" >Workflow Log Level</label>
-						<select id="select-Workflow">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-					<div class="clearfix">
-						<label for="select-Validation" >Validation Log Level</label>
-						<select id="select-Validation">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-					<div class="clearfix">
-						<label for="select-Callout" >Callout Log Level</label>
-						<select id="select-Callout">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-					<div class="clearfix">
-						<label for="select-Apex_code" >Apex Code Log Level</label>
-						<select id="select-Apex_code">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-					<div class="clearfix">
-						<label for="select-Apex_profiling" >Apex Profiling Log Level</label>
-						<select id="select-Apex_profiling">
-							<option value="">None</option>
-							<option value="ERROR">ERROR</option>
-							<option value="WARN">WARN</option>
-							<option value="INFO">INFO</option>
-							<option value="DEBUG">DEBUG</option>
-							<option value="FINE">FINE</option>
-							<option value="FINER">FINER</option>
-							<option value="FINEST">FINEST</option>
-						</select>
-					</div>
-
-				</fieldset>
-
-
-			</form>
-		</div>
-
-		<div id="connections">
-			<div id="error_wrapper" style="display:none">
-				<div id="error" style="margin:5px 0px 15px 0px;" class="alert-message error">
-					<p></p>
-	  			</div>
-			</div>
-			<form class="form-stacked">
-					<fieldset>	
-				    <div id="connections_wrapper">
-							<div class="alert-message block-message info">
-					        	<p><strong>A deployment connection is a Salesforce.com org that you wish to deploy to from this MavensMate project.</strong></p>
-					      	</div>
-							<div class="alert-message block-message-custom" style="margin-bottom:0px;padding: 5px;-webkit-border-radius: 4px 4px 0px 0px;">
-									<p style="float:left;"><strong>Deployment Connections</strong></p>
-								<div style="clear:both;"></div>	
-							</div>  
-							<table class="bordered-table test_result" style="-webkit-border-radius: 0px 0px 4px 4px;">
-								<thead>
-									<tr>
-										<th>Connection</th>
-										<th>Action</th>
-									</tr>
-								</thead>
-								<tbody id="connections_list">
-									{% for c in connections %}
-										<tr>
-											<td>{{ c['username'] }} ({{c['environment']}})</td>
-											<td>
-												<a href="javascript:void(0);" onclick="deleteConnection('{{ c['id'] }}')">Remove</a>
-											</td>
-										</tr>
-									{% endfor %}
-								</tbody>
-							</table>
-					</div>
-				</fieldset>
-			</form>
-			
-			<div id="form" class="active">
-				<form class="form-stacked">
-					<fieldset>					   
-						<div class="clearfix" id="svn_un_wrapper">
-							<label for="connection-un">Salesforce Username</label> 
-							<input class="xlarge" size="100" type="text" id="connection_un">
-						</div>				
-						<div class="clearfix" id="svn_pw_wrapper">
-							<label for="connection-pw">Salesforce Password</label> 
-							<input class="xlarge" size="100" type="password" id="connection_pw">
+					
+					<div class="row-fluid" style="margin-bottom:30px;">
+						<div class="span4">
+							<label class="checkbox" for="check_only">
+							  <input type="checkbox" value="" id="check_only" data-toggle="checkbox">
+							  Validate Only
+							</label>
 						</div>
-						<div class="clearfix">
-							<label for="org_type">Salesforce Org Type</label> 
-							<select id="org_type">
-								<option value="production">Production</option>
-								<option value="developer">Developer</option>
-								<option value="sandbox">Sandbox</option>
-								<option value="prerelease">Prerelease</option>
+						<div class="span4">
+							<label class="checkbox" for="run_tests">
+							  <input type="checkbox" value="" id="run_tests" data-toggle="checkbox">
+							  Run Tests
+							</label>
+						</div>
+						<div class="span4">
+							<label class="checkbox" for="rollback">
+							  <input type="checkbox" value="" id="rollback" data-toggle="checkbox">
+							  Rollback on Error
+							</label>
+						</div>
+					</div>
+					
+
+					<div class="row-fluid">
+						<div class="span12">
+							<div class="alert alert-info">
+			            		<i class="icon-cogs icon-2x pull-left"></i>
+			            		Debug levels control the level of granularity in a debug log.
+			          		</div>
+			      		</div>
+					</div>
+					<div class="row-fluid">
+						<div class="span6">
+							<label for="select-Db" >Database Log Level</label>
+							<select id="select-Db">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
 							</select>
 						</div>
-						<div class="clearfix" style="margin-top:15px;">
-							<input type="button" id="btnSubmit" class="btn primary" value="Create Connection" onclick="newConnection()">
+						<div class="span6">
+							<label for="select-Workflow" >Workflow Log Level</label>
+							<select id="select-Workflow">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
+							</select>
 						</div>
-										
-					</fieldset>
-				</form>
-			</div>
+					</div>
+
+					<div class="row-fluid">
+						<div class="span6">
+							<label for="select-Validation" >Validation Log Level</label>
+							<select id="select-Validation">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
+							</select>
+						</div>
+						<div class="span6">
+							<label for="select-Callout" >Callout Log Level</label>
+							<select id="select-Callout">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="row-fluid">
+						<div class="span6">
+							<label for="select-Apex_code" >Apex Code Log Level</label>
+							<select id="select-Apex_code">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG" selected="selected">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
+							</select>
+						</div>
+						<div class="span6">
+							<label for="select-Apex_profiling" >Apex Profiling Log Level</label>
+							<select id="select-Apex_profiling">
+								<option value="">None</option>
+								<option value="ERROR">ERROR</option>
+								<option value="WARN">WARN</option>
+								<option value="INFO">INFO</option>
+								<option value="DEBUG">DEBUG</option>
+								<option value="FINE">FINE</option>
+								<option value="FINER">FINER</option>
+								<option value="FINEST">FINEST</option>
+							</select>
+						</div>
+					</div>
+
+				</fieldset>
+
+
+			</form>
 		</div>
 
-		<div id="metadata">
-			<script>
-				$("#ptype").change(function() {
-					if (this.value == "Custom") {
-						$("#project_wrapper").show();
-						$("#changesetwrapper").hide();
-					} else {
-						$("#project_wrapper").hide();
-						$("#changesetwrapper").show();
-					}
-				})
-			</script>
-			<div id="filter">
-					<input type="text" placeholder="Search for metadata" id="txtFilter" style="width:300px" />
-					<a href="#" id="btnClearFilter" onclick="clearFilter();" class="btn small error" style="visibility:invisible;opacity:0;font-weight:bold;position:relative;top:1px;right:30px;padding:4px 7px 4px;">X</a>
-					<div class="select-wrapper" style="position:absolute;top:10px;right:5px;width:165px;text-align:right;">
-						<a href="#" id="btnSelectAll" class="btn small" style="font-weight:normal;padding:4px 7px 4px;">All</a>
-						<a href="#" id="btnDeselectAll" class="btn small" style="font-weight:normal;padding:4px 7px 4px;">None</a>
-						<a href="javascript:void(0)" id="btnRefresh" style="font-weight:normal;padding:4px 7px 4px;" class="btn success small" onclick="refresh_index()">Refresh</a>
-					</div>
+		<div id="connections" class="tab-pane">
+
+			<div class="alert alert-error" id="connection_error_wrapper">
+				<button type="button" class="close fui-cross"></button>
+				<span id="connection_error_message"></span>
+			</div>
+			
+			<div class="alert alert-info">
+	        	<i class="icon-exchange icon-2x pull-left"></i>A deployment connection is a Salesforce.com org that you wish to deploy to from this MavensMate project.
+	      	</div>
+			
+	      	<div class="row-fluid">
+	      		
+	      		<div class="span5">
+	      			<table class="table table-striped" style="border-bottom: 2px solid #eef0f0;">
+	      				<thead>
+	      					<tr>
+	      						<th style="padding-left:0px">New Connection</th>
+	      					</tr>
+	      				</thead>
+	      			</table>
+	      			<form class="form-stacked">
+	      				<fieldset>					   						
+	      					<div class="control-group large">
+	      						<input class="span12" placeholder="Salesforce.com Username" type="text" id="connection_un">
+	      					</div>
+	      					<div class="control-group large">
+	      						<input class="span12" placeholder="Salesforce.com Password" type="password" id="connection_pw">
+	      					</div>
+
+	      					 <div class="control-group large">
+	      						<select id="org_type" class="info">
+	      							<option value="production">Production</option>
+	      							<option value="developer">Developer</option>
+	      							<option value="sandbox">Sandbox</option>
+	      							<option value="prerelease">Prerelease</option>
+	      						</select>
+	      					</div>
+
+	      					<a id="btnSubmit" class="btn btn-success" onclick="newConnection()">Create Connection <i class="icon-circle-arrow-right"></i></a>
+	      									
+	      				</fieldset>
+	      			</form>
+	      		</div>
+
+	      		<div class="span7">
+	      			<table class="table table-striped">
+	      				<thead>
+	      					<tr>
+	      						<th>Connection</th>
+	      						<th>Action</th>
+	      					</tr>
+	      				</thead>
+	      				<tbody id="connections_list">
+	      					{% for c in connections %}
+	      						<tr>
+	      							<td>{{ c['username'] }} ({{c['environment']}})</td>
+	      							<td>
+	      								<a href="javascript:void(0);" onclick="deleteConnection('{{ c['id'] }}')">Remove</a>
+	      							</td>
+	      						</tr>
+	      					{% endfor %}
+	      				</tbody>
+	      			</table>
+	      		</div>
+
+	      	</div>
+		</div>
+
+		<div id="metadata" class="tab-pane">
+			
+			<div class="alert alert-info" id="filter">
+				<input type="text" placeholder="Search for metadata" id="txtFilter" style="width:300px;height:35px;" />
+				<div class="select-wrapper">
+					<select id="meta_type" class="">
+						
+					</select>
 				</div>
+				<a href="#" class="btn btn-success" id="search-btn"><i class="icon-search"></i></a>
+			</div>
 			<div id="project_wrapper">
 								
 				<div id="treewrapper">
@@ -317,47 +314,29 @@
 			</div>
 		</div>
 		
-		<!-- ARCADE -->
-		<div class="content" id="arcade">
-			<ul class="tabs tabs-below">
-				<li class="game"><a href="#game_pacman">Pacman</a></li>
-				<li class="game"><a href="#game_tetris">Tetris</a></li>
-				<li class="game"><a href="#game_donkey">Donkey Kong</a></li>
-			</ul>
-			<div class="pill-content">
-				<div class="active" id="game_pacman">
-					<embed src="http://www.classicgamesarcade.com/games/pacman.swf" width="100%" height="75%" autostart="true" loop="false" controller="true" id="pacman" class="flash_game"></embed>
-				</div>
-				<div id="game_tetris">
-					<embed src="http://www.classicgamesarcade.com/games/flash-tetris.swf" width="100%" height="75%" autostart="true" loop="false" controller="true" id="tetris" class="flash_game"></embed>
-				</div>
-				<div id="game_donkey">
-					<embed src="http://www.classicgamesarcade.com/games/donkeykong.swf" width="100%" height="75%" autostart="true" loop="false" controller="true" id="donkey" class="flash_game"></embed>
-				</div>
-			</div>
-		</div>
-
-		<div id="result">
-			
-		</div>		
+		{% include 'snippets/arcade.html' %}
+	
 	</div>
 </div> 
 
-<form class="form-stacked" id="action_buttons">
-	<fieldset style="padding-top:0px;position:relative;">
-		<div class="actions">					
-			<input id="btnDeploy" type="button" class="btn primary" value="Deploy to Server"  onclick='deploy()'>
-			&nbsp;
-			<button type="reset" class="btn" onclick="window.close();">Cancel</button>
-		</div>
-		<img src="{{ base_path }}/lib/ui/resources/images/big_loading.gif" style="position:absolute;top:15px;right:35px;width:36px;display:none;" id="deployment_indicator"/>
-	</fieldset>
-</form> 
+<div id="result" style="display:none;">
 
+</div>
+
+
+{% endblock %}
+
+
+{% block buttons %}					
+	<input id="btnDeploy" type="button" class="btn btn-info" value="Deploy to Server" onclick='deploy()'>
+	{% include 'snippets/cancel_button.html' %}
+	{% include 'snippets/running_indicator.html' %}
+{% endblock %}
+
+{% block body_js %}
 <script type="text/javascript">
 	var has_indexed_metadata = {{ has_indexed_metadata|lower }};
 	var operation;
-	document.title = "Deploy To Server";
 
 	function isValidateOnly() {
 		if ($("#check_only").is(":checked")) {
@@ -391,14 +370,6 @@
 		}
 	});
 
-	function resizeWindowAfterResult() {
-		window.resizeTo(800, window.innerHeight);
-		window.moveTo(
-			(screen.width-800)/2,
-			(screen.height-document.getElementById('wrapper').offsetHeight-400)/2
-			);
-	}
-
 	$(function() {
  		
 		$("#check_only").change(function() {
@@ -418,53 +389,55 @@
 				$("#un").val(this.value);
 			}
 		});
+
+		$("ul.nav-tabs li a span").hover(
+			function() {
+				$(this).addClass("label-success")
+			},
+			function() {
+				$(this).removeClass("label-success")
+			}
+		)
 		
 		if ($("#un_list").val() != 'new') {
 			$("#un").val($("#un_list").val());
 		}  
 
-		$('.tabs').tabs();
-
-		$("#project_wrapper").height($(window).height() - 225)
-
-		var resizeHeight = $("#form").height();
-		resizeAndCenterWindowSpecific(600, resizeHeight + 250);
-		$("#un_list").chosen();
+		$('#meta_type').html('')
+		$("#tree ul > li.level1").each(function() {
+			$('#meta_type').append('<option>'+$(this).attr('id')+'</option>')
+		});
+		
 		$(window).resize(function() {
-			$("#project_wrapper").height($(window).height() - 225)
-			$("#connections").height($(window).height() - 175)
-			resize_games()
+			resize_arcade()
+			resizeProjectWrapper()
 		});
 
-
-		$.expr[':'].Contains = function(a, i, m) {
-			return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-		};
-
-		var txtFilterTimeout = 0;
-		$("#txtFilter")
-		.change(function() {
-			var abort_time = 150; // if it changes within this time, abort and dont filter
-			if (txtFilterTimeout!=0){
-				clearTimeout(txtFilterTimeout)
+		
+		$("#txtFilter").bind('keyup', function(e) {
+			var code = (e.keyCode ? e.keyCode : e.which);
+			if (code == 13) {
+				submitSearch()
 			}
-			txtFilterTimeout = setTimeout(function(){
-				var filter = $("#txtFilter").val();
-		        if (filter) {
-		        	$("#btnClearFilter").show()
-		        	expandAll();        	
-		        	filter_tree(filter);				
-		        } else {
-		        	$("#btnClearFilter").hide()
-		        	clearFilter();
-		        }
-			}, abort_time);
-	        //return false;
-	    })
+		})
+		.change(function() {
+			var filter = $("#txtFilter").val();
+			if (!filter) {
+				clearFilter();
+				scrollToTop("#project_wrapper");	
+			}
+		})
 		.keyup(function() {
-	        // fire the above change event after every letter	
 	        $(this).change();
 	    });
+
+	    $("#search-btn").click(function() {
+	    	if ($(this).hasClass('btn-success')) {
+	    		submitSearch()
+	    	} else {
+	    		clearFilter()
+	    	}
+	    })
 		
 		if (!has_indexed_metadata) {
 				index_org();
@@ -480,6 +453,12 @@
 			rootNode = $("#tree").dynatree("getRoot");
 		}
 
+		$('label.checkbox input').checkbox();
+
+		resize_games()
+		window.resizeTo(900, 720)
+		centerWindow()
+		resizeProjectWrapper()
 	});
 
 	function repopulate_connection_list(conns) {
@@ -490,76 +469,9 @@
 			connHtml += conns[c]['username']
 			connHtml += '</option>'
 		}
-		//$("#no-connections").hide()
-		console.log(connHtml)
 		$("#un_list").html(connHtml)
 		$('#un_list').trigger("liszt:updated");
 	}
-
-	function filter_tree(searchTerm) {
-		var regex = new RegExp(searchTerm,"i");
-		rootNode.visit(function(node) {
-			if (node.isVisible() && node.data.title) {
-				nodeTitle = node.data.title;
-				if ( nodeTitle.match(regex) ) {
-					node.visitParents(function(node) {
-						$(node.li).show();
-						return (node.parent != null);
-					}, true); 
-					return 'skip';  
-				} else {
-					$(node.li).hide();
-				}
-			}
-		});
-	}
-
-	function expandAll() {
-		$("#tree").dynatree("getRoot").visit(function(node){
-			node.expand(true);
-		});
-	}
-
-	function collapseAll() {
-		$("#tree").dynatree("getRoot").visit(function(node){
-			node.expand(false);
-		});
-	}
-
-	function clearFilter() {
-		$('#txtFilter').val('');
-		$("#btnClearFilter").css({opacity: 0.0, visibility: "visible"});
-		collapseAll();
-		$(".dynatree-container li").show(); 
-		$('#txtFilter').focus();
-	}
-
-	$("#btnDeselectAll").click(function(){
-		$("#tree").dynatree("getRoot").visit(function(node){   		
-			if ($(node.li).css('display') != 'none') { 
-				try {
-					if (node.data.level > 1)
-						node.select(false);
-				} catch(e) {
-					node.select(false);   				
-				}
-			}
-		});
-		return false;
-	});
-	$("#btnSelectAll").click(function(){
-		$("#tree").dynatree("getRoot").visit(function(node){		   			
-			if ($(node.li).css('display') != 'none') {
-				try {
-					if (node.data.level > 1)
-						node.select(true);
-				} catch(e) {
-					node.select(true);   				
-				}
-			}   		
-		});
-		return false;
-	});
 
 	var rootNode;
 
@@ -600,27 +512,48 @@
 
 	function handle_response(response) {
 		if (operation == "deploy") {
+			$(".result_wrapper").remove()
+
 			$("#result").html(response["body"]);
 
-			hideElement("deployment_indicator");
-			$("#btnDeploy").show();
+			$("#dropdown-destinations").html($("#destination_options ul").html());
+			$("#destination_options").remove()
 
-			$(".result_table_class").height($(window).height() - 300)
-			$(window).resize(function() {
-		        $(".result_table_class").height($(window).height() - 300)
-		    });
+			$("#check_only").attr('checked', false);
+			$("#check_only").parent().removeClass('checked')
+			$("#btnDeploy").val('Deploy to Server');
 
+			$("#main-tab-content").append($("#extra_tabs").html());
+			$("#extra_tabs").remove()
+
+			$('.nav-tabs a').click(function (e) {
+			  e.preventDefault();
+			  $(this).tab('show');
+			})
+
+			$(".results_hidden").show();
 			if ($("#arcade").css("display") == "none") {
-				$("#result_tab").click();
-			    resizeWindowAfterResult();
+				$("ul#main-tabs > li.active").removeClass('active')
+				$("div#main-tab-content > div.active").removeClass('active')
+				$("#result-0").addClass('active')
+				$('li.dropdown ul li a.test_result_link').tab('show');
+				$(".results_hidden").addClass('active');
 			}
+
+			toggleRunningIndicator();
+			$("#btnDeploy").show();
+			notify_sound()
 		} else if (operation == "index") {
 			if (response["success"] == false) {
-				$("#error_message").html(response["body"])
-				$(".alert-message.error").show()
+				show_message(response["body"])
 			} else {
 				$("#tree").dynatree("destroy")
 				$("#tree ul").html(response["body"]);
+				$('#meta_type').html('')
+				$("#tree ul > li.level1").each(function() {
+					$('#meta_type').append('<option>'+$(this).attr('id')+'</option>')
+				});
+				
 				$("#tree").dynatree({
 					persist: false,
 					checkbox: true,
@@ -631,6 +564,8 @@
 	    		});  
 				rootNode = $("#tree").dynatree("getRoot");
 			}
+			resizeProjectWrapper();
+			notify_sound();
 			hideLoading();
 		}
 	}
@@ -649,7 +584,7 @@
 			    project_name 		: '{{ name }}',
 			    debug_categories 	: get_log_levels_json()
 			}),
-			beforeSend: function() { showElement("deployment_indicator"); $("#btnDeploy").hide()  },
+			beforeSend: function() { toggleRunningIndicator(); $("#btnDeploy").hide()  },
 			complete: function(data){
 				global_init_handler(data)
 			} 
@@ -669,8 +604,6 @@
 			},
 			beforeSend: function() { showLoading('Listing connections'); },
 			complete: function(data){
-				//need to replace html here with list of connections
-				//AND repopulate chosen multipicklist
 				var connHtml = ''
 				console.log(data)				
 				var conns = JSON.parse(data.responseText)
@@ -699,15 +632,15 @@
 			}),
 			beforeSend: function() { showLoading('Removing connection'); },
 			complete: function(data){
-				$("#error p").html('')
+				$("#connection_error_message").html('')
 				console.log(data)				
 				var response = JSON.parse(data.responseText)
 				if (response["success"] == false) {
-					$("#error p").html(response["body"])
-					$("#error_wrapper").show()
+					$("#connection_error_message").html(response["body"])
+					$("#connection_error_wrapper").show()
 					hideLoading()	
 				} else {
-					$("#error_wrapper").hide()
+					$("#connection_error_wrapper").hide()
 					hideLoading()	
 					listConnections()
 				}		
@@ -729,17 +662,17 @@
 			}),
 			beforeSend: function() { showLoading('Adding connection'); },
 			complete: function(data){
-				$("#error p").html('')
+				$("#connection_error_message").html('')
 				console.log(data)				
 				var response = JSON.parse(data.responseText)
 				if (response["success"] == false) {
-					$("#error p").html(response["body"])
-					$("#error_wrapper").show()
+					$("#connection_error_message").html(response["body"])
+					$("#connection_error_wrapper").show()
 					hideLoading()	
 				} else {
 					$("#connection_un").val('')
 					$("#connection_pw").val('')
-					$("#error_wrapper").hide()
+					$("#connection_error_wrapper").hide()
 					hideLoading()	
 					listConnections()
 				}

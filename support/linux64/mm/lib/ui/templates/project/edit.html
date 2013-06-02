@@ -1,43 +1,45 @@
 {% extends "layouts/base.html" %}
 {% block yield %}
-<div id="result_output" class="error">
-	<div id="result_wrapper" style="padding:0px 10px;">
-		<div class="alert-message error" style="display:none;">
-			<p id="error_message"></p>
-		</div>
-		<div class="alert-message success" style="display:none;">
-			<p id="success_message"></p>
-		</div>		
+<div id="result_output">
+	<div class="alert alert-error">
+		<button type="button" class="close fui-cross"></button>
+		<span id="error_message"></span>
 	</div>
 </div>
 
 
 <div class="content">
 	
-	<ul class="tabs">
-		<li class="active"><a id="project_details_tab" href="#form">Project Details</a></li>
-		<li><a href="#metadata">Project Metadata</a></li>
+	<ul class="nav nav-tabs nav-append-content">
+		<li class="active">
+			<a id="project_details_tab" href="#form" data-toggle="tab">Project Details</a>
+		</li>
+		<li>
+			<a href="#metadata" data-toggle="tab">
+				Project Metadata &nbsp;&nbsp;
+				<span onclick="index_org(true)" class="label" style="line-height:15px;cursor:pointer;">Refresh <i class="icon-refresh"></i></span> 	
+			</a>
+</a>
+		</li>
 	</ul>
 	
-	<div class="pill-content">  
-		<div id="form" class="active">
+	<div class="tab-content" id="main-tab-content">  
+		<div id="form" class="tab-pane active">
 			<form class="form-stacked">
 				<fieldset>
-					<div class="clearfix">
-						<label for="pn">Project Name</label> 
-						<input class="xlarge" size="100" type="text" id="pn">
+					<div class="control-group large disabled">
+						<input class="span12" placeholder="Project Name" type="text" id="pn" disabled="disabled">
+						<i class="input-icon fui-lock"></i>
 					</div>
-					<div class="clearfix">
-						<label for="un">Salesforce Username</label> 
-						<input class="xlarge" size="100" type="text" id="un">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Username" type="text" id="un">
 					</div>
-					<div class="clearfix">
-						<label for="pw">Salesforce Password</label> 
-						<input class="xlarge" size="100" type="password" id="pw">
+					<div class="control-group large">
+						<input class="span12" placeholder="Salesforce.com Password" type="password" id="pw">
 					</div>
+
 					<div class="clearfix">
-						<label for="server_url">Org Type</label> 
-						<select id="org_type">
+						<select id="org_type" class="info">
 							<option value="production">Production</option>
 							<option value="developer">Developer</option>
 							<option value="sandbox">Sandbox</option>
@@ -45,12 +47,23 @@
 						</select>
 					</div>
 					<div class="clearfix" style="margin-top:20px;">
-						<input type="button" class="btn primary" value="Update Credentials" onclick="updateProjectCreds();">
+						<a class="btn btn-success" onclick="updateProjectCreds();">
+							Update Credentials &nbsp <i class="icon-user"></i>
+						</a>
 					</div> 												
 				</fieldset>
 			</form>
 		</div>
-		<div id="metadata">
+		<div id="metadata" class="tab-pane">
+			<div class="alert alert-info" id="filter">
+				<input type="text" placeholder="Search for metadata" id="txtFilter" style="width:300px;height:35px;" />
+				<div class="select-wrapper">
+					<select id="meta_type" class="">
+						
+					</select>
+				</div>
+				<a href="#" class="btn btn-success" id="search-btn"><i class="icon-search"></i></a>
+			</div>
 			<div id="project_wrapper">
 				<div id="treewrapper" style="height:100%; padding-bottom:100px;">
 					<div id="tree">
@@ -64,26 +77,22 @@
     	</div>
 	</div>
 </div>  
-	
-<form class="form-stacked" id="action_buttons">
-	<fieldset style="padding-top:0px;">
-		<div class="actions">					
-			<input type="button" id="btnSubmit" class="btn primary" value="Update Project"  onclick="updateProject();">
-			&nbsp;
-			<button type="button" class="btn success" value="Refresh Metadata" onclick="index_org(true);">Refresh Metadata</button>
-			&nbsp;
-			<button type="reset" class="btn" onclick="window.close();">Cancel</button>
-		</div>
-	</fieldset>
-</form>   
+{% endblock %}  
 
-	
+{% block buttons %}					
+	<input type="button" id="btnSubmit" class="btn btn-info" value="Update Project"  onclick="updateProject();">
+	<button type="reset" class="btn" onclick="window.close();">Cancel</button>
+{% endblock %}  
+
+{% block body_js %}
+
 	<script type="text/javascript">
 		var mm_cpd = '{{ project_location }}';
 		var has_indexed_metadata = {{ has_indexed_metadata|lower }};
 		var operation;
-		var child_def = {}
-		
+		var child_def = {};
+		var rootNode;
+		var search_worker;
 		function updateProjectCreds() {
 			console.log('updating project creds')
 			operation = "update_creds"
@@ -103,13 +112,9 @@
 					console.log(data)				
 					var response = JSON.parse(data.responseText)
 					if (response["success"] == false) {
-						$("#error_message").html(response["body"] + "<a class=\"close\" href=\"#\">x</a>")
-						$(".alert-message.success").hide()
-						$(".alert-message.error").show()
+						show_message(response["body"])
 					} else {
-						$("#success_message").html(response["body"] + "<a class=\"close\" href=\"#\">x</a>")
-						$(".alert-message.error").hide()
-						$(".alert-message.success").show()
+						show_message(response["body"], 'success')
 					}
 					hideLoading();
 				}
@@ -152,32 +157,39 @@
 		function handle_response(response) {
 			if (operation == "index") {
 				if (response["success"] == false) {
-					$("#error_message").html(response["body"])
-					$(".alert-message.error").show()
+					show_message(response["body"])
 				} else {
 					$("#tree").dynatree("destroy")
 					$("#tree ul").html(response["body"]);
+					$('#meta_type').html('')
+					$("#tree ul > li.level1").each(function() {
+						$('#meta_type').append('<option>'+$(this).attr('id')+'</option>')
+					});
 					$("#tree").dynatree({
 						persist: false,
 						checkbox: true,
-						selectMode: 3
+						selectMode: 3,
+						filter: {
+							mode: "hide"
+						}
 					});
 					$("#tree").dynatree("getRoot").visit(function(node) {
 		        		node.expand(false);
 		    		});  
 					rootNode = $("#tree").dynatree("getRoot");
 				}
+				notify_sound()
 				hideLoading();
 			} else if (operation == "update") {
 				if (response["success"] == false) {
-					$("#error_message").html(response["body"])
-					$(".alert-message.error").show()
+					show_message(response["body"])
 				} else {
-					$("#success_message").html("Project updated successfully")
-					$(".alert-message.success").show()
+					show_message("Project updated successfully", "success")
 				}
+				notify_sound()
 				hideLoading();
 			}
+			resizeProjectWrapper()
 		}
 			
 		$(function() {		
@@ -187,17 +199,78 @@
 			$("#org_type").val("{{ org_type }}");
 			
 			$("#pn").prop('disabled', true);  
-			
-			var resizeHeight = $("#project_wrapper").height(); 
-		    resizeAndCenterWindowByHeight(resizeHeight);
+			$('#meta_type').html('')
+			$("#tree ul > li.level1").each(function() {
+				$('#meta_type').append('<option>'+$(this).attr('id')+'</option>')
+			});
 
 			$(window).resize(function() {
-				$("#project_wrapper").height($(window).height() - 175)
-			});  
-			$(window).trigger('resize');
+				resizeProjectWrapper()
+			});
 
-			//instantiate tabs
-			$('.tabs').tabs();
+			$("ul.nav-tabs li a span").hover(
+				function() {
+					$(this).addClass("label-success")
+				},
+				function() {
+					$(this).removeClass("label-success")
+				}
+			)
+
+		    window.resizeTo(700, 750)
+		    centerWindow()
+
+		    $("#btnDeselectAll").click(function(){
+				$("#tree").dynatree("getRoot").visit(function(node){   		
+					if ($(node.li).css('display') != 'none') { 
+						try {
+							if (node.data.level > 1)
+								node.select(false);
+						} catch(e) {
+							node.select(false);   				
+						}
+					}
+				});
+				return false;
+			});
+			$("#btnSelectAll").click(function(){
+				$("#tree").dynatree("getRoot").visit(function(node){		   			
+					if ($(node.li).css('display') != 'none') {
+						try {
+							if (node.data.level > 1)
+								node.select(true);
+						} catch(e) {
+							node.select(true);   				
+						}
+					}   		
+				});
+				return false;
+			});
+
+			$("#txtFilter").bind('keyup', function(e) {
+				var code = (e.keyCode ? e.keyCode : e.which);
+				if (code == 13) {
+					submitSearch()
+				}
+			})
+			.change(function() {
+				var filter = $("#txtFilter").val();
+				if (!filter) {
+					clearFilter();
+					scrollToTop("#project_wrapper");	
+				}
+			})
+			.keyup(function() {
+		        $(this).change();
+		    });
+
+		    $("#search-btn").click(function() {
+		    	if ($(this).hasClass('btn-success')) {
+		    		submitSearch()
+		    	} else {
+		    		clearFilter()
+		    	}
+		    })
 
 			//brief pause
 			setTimeout(function(){	
@@ -208,18 +281,18 @@
 						persist: false,
 						checkbox: true,
 						selectMode: 3,
-						debugLevel: 0,
-						enableUpdate: false
+						debugLevel: 0
 					});
-					$("#tree").dynatree().enableUpdate(false);
-					$("#tree").dynatree("getRoot").visit(function(node) {
-						node.expand(false);
-					});  
+					// $("#tree").dynatree("getRoot").visit(function(node) {
+					// 	node.expand(false);
+					// });  
 					rootNode = $("#tree").dynatree("getRoot");
+
+					resizeProjectWrapper()
 				}
 			}, 200);
-		});
 
+		});
 	</script>
 
 {% endblock %}

@@ -20,21 +20,12 @@ child_metadata = [
 ]
 
 $(function() {
-	try {
-		setUpAjaxErrorHandling()
-	} catch(e) {
-		console.log(e)
-	}
-	$("input[type='text']:first").focus(); //focus first input element
-
-	$(".alert-message p a.close").live("click", function(){
-		$(this).parent().parent().hide();
-	})	
-
-	$("#result_wrapper a.close").live("click", function(){
-		$(this).parent().parent().hide();
-	})
+	
 });
+
+function scrollToTop(selector) {
+	$(selector).animate({ scrollTop: 0 }, 300);
+}
 
 function showElement(id) {
 	$("#"+id).show();
@@ -44,10 +35,15 @@ function hideElement(id) {
 	$("#"+id).hide();
 }
 
+function toggleRunningIndicator() {
+	$(".running_indicator").toggle();
+}
+
 function showLoading(message) {
-	//$(".alert-message").hide();
+	$(".twipsy").height($(window).height())
+	$(".twipsy").width($(window).width())
 	$("#loading_message").html(message)
-	$(".loading").fadeIn();
+	$(".loading").show();
 }
 
 function hideLoading() {
@@ -66,11 +62,11 @@ function isArray(what) {
 
 //window resizer and mover
 function resizeAndCenterWindowByHeight(height) {
-   	window.resizeTo(385, height+160);
+   	window.resizeTo(485, height+160);
 	try {
 		$("#deploy_output").height(height);
 	} catch(e) { }	
-	window.moveTo((screen.width-385)/2,(screen.height-document.getElementById('wrapper').offsetHeight-400)/2);
+	//window.moveTo((screen.width-385)/2,(screen.height-document.getElementById('wrapper').offsetHeight-400)/2);
 }
 
 //window resizer and mover
@@ -90,7 +86,7 @@ function resizeWindow() {
 }
 
 function centerWindow() {
-	window.moveTo((screen.width-385)/2,(screen.height-document.getElementById('wrapper').offsetHeight-400)/2);
+	window.moveTo((screen.width-$(window).width())/2,(screen.height-$(window).height())/2-190);
 }   
 
 //if dom elements is removed, we need to resize the window
@@ -201,79 +197,6 @@ function get_tree() {
 	return json
 }
 
-//gets tree content in ruby hash form
-function get_tree_backup() {			
-	var child_def = {}
-	for (item in child_metadata) {
-		child_def['tagName'] = child_metadata[item]['xmlName']
-	}
-	var json = { }
-	var tree = $("#tree").dynatree("getTree")
-	
-	//process top level (these are top level metadata types)
-	var selected_items = tree.getSelectedAndPartselNodesByLevel(1)
-	for (var i in selected_items) {
-		console.log(selected_items[i])
-		json[selected_items[i].data.title] = selected_items[i].bSelected && selected_items[i].data.inFolder == false ? "*" : []
-	} 
-	
-	//console.log(json) 
-	
-	//process children (can either be files or folders)
-	selected_items = tree.getSelectedAndPartselNodesByLevel(2)
-	for (var i in selected_items) {
-		if (json[selected_items[i].parent.data.title] == "*") continue;   
-		if (selected_items[i].parent.data.hasChildTypes == true && !selected_items[i].bSelected) continue;
-		json[selected_items[i].parent.data.title].push(selected_items[i].data.title)
-	}
-	
-	//console.log(json)
-	
-	//process grandchildren (this is either metadata in folders or child metadata types like fields, weblinks, listviews, etc.)
-	selected_items = tree.getSelectedAndPartselNodesByLevel(3)
-	for (var i in selected_items) {
-		if (selected_items[i].parent.parent.data.inFolder == true) {
-			//this is folder-based metadata, we need to add this item explicitly
-		    items = json[selected_items[i].parent.parent.data.title] //=> items is an array
-		  	var item;
-			folder_name = ""
-			for (var j = 0; j < items.length; j++) {
-				if (items[j] == selected_items[i].parent.data.title) {
-					folder_name = items[j]
-					item = items[j]
-					break;
-				}
-			} 
-			console.log(item)
-			items.push(item + "/" + selected_items[i].data.title)
-			//items.push({name:item.name + "/" + selected_items[i].data.title})
-		} else if (selected_items[i].parent.parent.data.hasChildTypes) {
-			if (selected_items[i].parent.parent.data.select || selected_items[i].parent.parent.bSelected) {
-				continue;
-			} else {
-				if (selected_items[i].parent.data.select || selected_items[i].parent.bSelected) {
-					continue;
-				}
-				metadata_type = child_def[selected_items[i].data.title]
-				if (!json[metadata_type]) {
-					json[metadata_type] = []
-				}    
-				//console.log(metadata_type)
-				for (var j = 0; j < selected_items[i].childList.length; j++) {
-					//console.log(selected_items[i].childList[j])
-					if (selected_items[i].childList[j].bSelected || selected_items[i].childList[j].data.select) {
-						json[metadata_type].push(selected_items[i].parent.data.title+"."+selected_items[i].childList[j].data.title)  
-					}
-				}
-			}
-		}
-	}       
-	// var myJSONText = JSON.stringify(json, "\/")
-	// console.log(myJSONText) 
-	// return myJSONText
-	return json
-}
-
 function get_log_levels_json() {
 	var options = []
 	var logCategories = ['Db', 'Workflow', 'Validation', 'Callout', 'Apex_code', 'Apex_profiling']
@@ -348,6 +271,57 @@ function hide_global_error() {
 	$("#global_message").html('')
 }
 
+function show_message(message, mtype) {
+	if (mtype === undefined) {
+		mtype = 'error'
+	}
+	$("#error_message").parent().attr('class', 'alert')
+	$("#error_message").parent().addClass('alert-'+mtype)
+	$("#error_message").html(message)
+	$("#result_output").show()
+	resizeElements()
+}
+
+function hide_message(message) {
+	$("#error_message").html('')
+	$("#result_output").hide()
+	resizeElements()
+}
+
+function resize_arcade() {
+	$(".flash_game").css("width", $(".tab-content").width() - 45)
+	$(".flash_game").css("height", $(window).height() - 270)
+}
+
+function resizeElements() {
+    // if ($("#result_output").css('display') != 'none') {
+    //     if ($(".tab-content").hasClass('tab-content-nested')) {
+
+    //     } else {
+    //     	$(".tab-content").height($(window).height() - $(".navbar").height() - $("#result_output").height() - 140)
+    //     }
+    // } else {
+    //     if ($(".tab-content").hasClass('tab-content-nested')) {
+
+    //     } else {
+    //     	$(".tab-content").height($(window).height() - $(".navbar").height() - 120)
+    //     }
+    // }
+
+    if ($("#result_output").css('display') != 'none') {
+		$("#main-tab-content").height($(window).height() - $(".navbar").height() - $("#result_output").height() - 140)
+    } else {
+        $("#main-tab-content").height($(window).height() - $(".navbar").height() - 120)
+    }
+}
+
+function resizeProjectWrapper(offset) {
+	if (offset === undefined) {
+		offset = 90
+	}
+	$("#project_wrapper").height($("#main-tab-content").height() - offset)
+}
+
 function check_status(request_id) {
 	$.ajax({
 		type: "GET",
@@ -376,3 +350,91 @@ function check_status(request_id) {
 		} 
 	});
 }
+
+
+jQuery.fn.selectText = function(){
+	var doc = document;
+	var element = this[0];
+	console.log(this, element);
+	if (doc.body.createTextRange) {
+		var range = document.body.createTextRange();
+		range.moveToElementText(element);
+		range.select();
+	} else if (window.getSelection) {
+		var selection = window.getSelection();        
+		var range = document.createRange();
+		range.selectNodeContents(element);
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+};
+
+function filter_tree(searchTerm, parent) {
+	if (searchTerm === undefined || searchTerm.length < 2) {
+		return;
+	}
+	if (parent === undefined) {
+		parent = 'ApexClass'
+	}
+	var st = searchTerm.toLowerCase()
+	$("#tree").dynatree("getRoot").visit(function(node) {
+		if (node.data.level == 1) {
+			if (node.data.title == parent) {
+				node.expand(true);
+				node.visit(function(child_node) {
+					
+					var nodeTitle = child_node.data.title;
+					var nt = nodeTitle.toLowerCase()
+					if ( nt.indexOf(st) >= 0 ) {
+						$(child_node.li).show();
+						child_node.visitParents(function(parent_node) {
+							$(parent_node.li).show();
+							return (parent_node.parent != null);
+						}, false); 
+						return 'skip';  
+					} else {
+						$(child_node.li).hide();
+					}
+
+				}, false);
+			} else {
+				$(node.li).hide();
+			}
+		}
+	});
+}
+
+function expandAll() {
+	$("#tree").dynatree("getRoot").visit(function(node){
+		if (node.hasChildren()) {
+			node.expand(true);
+		}
+	});
+}
+
+function collapseAll() {
+	$("#tree").dynatree("getRoot").visit(function(node){
+		node.expand(false);
+	});
+}
+
+function submitSearch() {
+	var filter = $("#txtFilter").val();
+	if (filter && filter.length > 2) {
+		filter_tree(filter, $('#meta_type').val());
+		scrollToTop("#project_wrapper");
+		$("#search-btn").removeClass('btn-success').addClass('btn-danger').html('<i class="icon-remove"></i>')
+	}
+}
+
+function clearFilter() {
+	$('#txtFilter').val('');
+	collapseAll();
+	$(".dynatree-container li").show(); 
+	$('#txtFilter').focus();
+	$("#search-btn").removeClass('btn-danger').addClass('btn-success').html('<i class="icon-search"></i>')
+}
+
+$.expr[':'].Contains = function(a, i, m) {
+	return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+};
