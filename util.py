@@ -642,7 +642,7 @@ def start_mavensmate_app():
     if p.stderr is not None:
         msg = p.stdout.read()
 
-    if msg == None and int(processCount) == 1:
+    if msg == None and int(processCount) <= 1:
         mmLocation = os.path.expanduser ( settings.get('mm_app_location') )
         mmServerLocation = os.path.expanduser ( settings.get('mm_location') )   
         command = mmLocation + " -m " + mmServerLocation 
