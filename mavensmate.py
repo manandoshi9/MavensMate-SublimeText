@@ -239,16 +239,12 @@ class OpenProjectCommand(sublime_plugin.WindowCommand):
 
 #displays new apex class dialog
 class NewApexClassCommand(sublime_plugin.TextCommand):
-<<<<<<< HEAD
     def is_enabled(self):
         return util.is_mm_project()
 
-    def run(self, edit): 
-=======
     def run(self, edit, api_name="MyClass", class_type="default"): 
         templates = get_merged_apex_templates("ApexClass")
         sublime.active_window().show_input_panel("Apex Class Name, Template "+str(sorted(templates.keys())), api_name+", "+class_type, self.on_input, None, None)
->>>>>>> upstream/2.0
         util.send_usage_statistics('New Apex Class')
 
     def on_input(self, input): 
@@ -267,16 +263,12 @@ class NewApexClassCommand(sublime_plugin.TextCommand):
 
 #displays new apex trigger dialog
 class NewApexTriggerCommand(sublime_plugin.TextCommand):
-<<<<<<< HEAD
     def is_enabled(self):
         return util.is_mm_project() 
 
-    def run(self, edit): 
-=======
     def run(self, edit, api_name="MyAccountTrigger", sobject_name="Account", class_type="default"): 
         templates = get_merged_apex_templates("ApexTrigger")
         sublime.active_window().show_input_panel("Apex Trigger Name, SObject Name, Template "+str(sorted(templates.keys())), api_name+", "+sobject_name+", "+class_type, self.on_input, None, None)
->>>>>>> upstream/2.0
         util.send_usage_statistics('New Apex Trigger')
 
     def on_input(self, input):
@@ -296,15 +288,13 @@ class NewApexTriggerCommand(sublime_plugin.TextCommand):
 
 #displays new apex page dialog
 class NewApexPageCommand(sublime_plugin.TextCommand):
-<<<<<<< HEAD
+
     def is_enabled(self):
         return util.is_mm_project()
-    def run(self, edit): 
-=======
+ 
     def run(self, edit, api_name="MyPage", class_type="default"): 
         templates = get_merged_apex_templates("ApexPage")
         sublime.active_window().show_input_panel("Visualforce Page Name, Template", api_name+", "+class_type, self.on_input, None, None)
->>>>>>> upstream/2.0
         util.send_usage_statistics('New Visualforce Page')
     
     def on_input(self, input): 
@@ -323,16 +313,12 @@ class NewApexPageCommand(sublime_plugin.TextCommand):
 
 #displays new apex component dialog
 class NewApexComponentCommand(sublime_plugin.TextCommand):
-<<<<<<< HEAD
     def is_enabled(self):
         return util.is_mm_project()
 
-    def run(self, edit): 
-=======
     def run(self, edit, api_name="MyComponent", class_type="default"): 
         templates = get_merged_apex_templates("ApexComponent")
         sublime.active_window().show_input_panel("Visualforce Component Name, Template", api_name+", "+class_type, self.on_input, None, None)
->>>>>>> upstream/2.0
         util.send_usage_statistics('New Visualforce Component')
     
     def on_input(self, input): 
@@ -1101,31 +1087,39 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                 for method in pd:
                     _completions.append((method, method))
                 return sorted(_completions)
-<<<<<<< HEAD
-            elif os.path.isfile(util.mm_project_directory()+"/src/classes/"+word+".cls"): #=> custom apex class static methods
-                search_name = util.prep_for_search(word)
-                #print search_name
-                #print 'looking for class def in: ' + util.mm_project_directory()+"/config/.class_docs/xml/class_"+search_name+".xml"
-                if os.path.isfile(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml"):
-                    object_dom = parse(util.mm_project_directory()+"/config/.class_docs/xml/"+search_name+".xml")
-                    for node in object_dom.getElementsByTagName('memberdef'):
-                        #print node.getAttribute("static")
-                        if node.getAttribute("static") == "No": continue
-                        member_type = ''
-                        member_name = ''
-                        member_args = ''
-                        for child in node.childNodes:                            
-                            if child.nodeName != 'name' and child.nodeName != 'type' and child.nodeName != 'argsstring': continue
-                            if child.nodeName == 'name':
-                                if child.firstChild != None: member_name = child.firstChild.nodeValue
-                            elif child.nodeName == 'type':
-                                if child.firstChild != None: member_type = child.firstChild.nodeValue
-                            elif child.nodeName == 'argsstring':
-                                if child.firstChild != None: member_args = child.firstChild.nodeValue   
-                            #print member_args 
-                            if member_name != '' and member_name != 'set' and member_name != 'get':
-                                _completions.append((member_name+member_args+" \t"+member_type, member_name + member_args))
-                    return sorted(_completions)            
+           
+            elif os.path.isfile(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object"): #=> object fields
+                object_dom = parse(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object")
+                for node in object_dom.getElementsByTagName('fields'):
+                    field_name = ''
+                    field_type = ''
+                    for child in node.childNodes:                            
+                        if child.nodeName != 'fullName' and child.nodeName != 'type': continue
+                        if child.nodeName == 'fullName':
+                            field_name = child.firstChild.nodeValue
+                        elif child.nodeName == 'type':
+                            field_type = child.firstChild.nodeValue
+                    _completions.append((field_name+" \t"+field_type, field_name))
+                return sorted(_completions)
+            elif os.path.isfile(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object"): #=> object fields
+                object_dom = parse(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object")
+                for node in object_dom.getElementsByTagName('fields'):
+                    field_name = ''
+                    field_type = ''
+                    for child in node.childNodes:                            
+                        if child.nodeName != 'fullName' and child.nodeName != 'type': continue
+                        if child.nodeName == 'fullName':
+                            field_name = child.firstChild.nodeValue
+                        elif child.nodeName == 'type':
+                            field_type = child.firstChild.nodeValue
+                    _completions.append((field_name+" \t"+field_type, field_name))
+                return sorted(_completions)
+            
+            elif os.path.isfile(util.mm_project_directory()+"/src/classes/"+object_name_lower+".cls"): #=> apex classes
+                search_name = util.prep_for_search(object_name)
+                _completions = util.get_apex_completions(search_name)
+                return sorted(_completions)
+
             else: 
                 current_line = view.rowcol(pt)
                 current_line_index = current_line[0]
@@ -1310,40 +1304,6 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                                 if member_name != '' and member_name != 'set' and member_name != 'get':
                                     _completions.append((member_name+member_args+" \t"+member_type, member_name + member_args))
                         return sorted(_completions)
-=======
-            elif os.path.isfile(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object"): #=> object fields
-                object_dom = parse(util.mm_project_directory()+"/config/objects/"+object_name_lower+".object")
-                for node in object_dom.getElementsByTagName('fields'):
-                    field_name = ''
-                    field_type = ''
-                    for child in node.childNodes:                            
-                        if child.nodeName != 'fullName' and child.nodeName != 'type': continue
-                        if child.nodeName == 'fullName':
-                            field_name = child.firstChild.nodeValue
-                        elif child.nodeName == 'type':
-                            field_type = child.firstChild.nodeValue
-                    _completions.append((field_name+" \t"+field_type, field_name))
-                return sorted(_completions)
-            elif os.path.isfile(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object"): #=> object fields
-                object_dom = parse(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object")
-                for node in object_dom.getElementsByTagName('fields'):
-                    field_name = ''
-                    field_type = ''
-                    for child in node.childNodes:                            
-                        if child.nodeName != 'fullName' and child.nodeName != 'type': continue
-                        if child.nodeName == 'fullName':
-                            field_name = child.firstChild.nodeValue
-                        elif child.nodeName == 'type':
-                            field_type = child.firstChild.nodeValue
-                    _completions.append((field_name+" \t"+field_type, field_name))
-                return sorted(_completions)
-            
-            elif os.path.isfile(util.mm_project_directory()+"/src/classes/"+object_name_lower+".cls"): #=> apex classes
-                search_name = util.prep_for_search(object_name)
-                _completions = util.get_apex_completions(search_name)
-                return sorted(_completions)
-
->>>>>>> upstream/2.0
 
 #uses doxygen to generate xml-based documentation which assists in code completion/suggest functionality in MavensMate
 class GenerateApexClassDocsCommand(sublime_plugin.WindowCommand):
@@ -1353,14 +1313,9 @@ class GenerateApexClassDocsCommand(sublime_plugin.WindowCommand):
         if os.path.exists(util.mm_project_directory() + "/config/.class_docs/xml"):
             import shutil
             shutil.rmtree(util.mm_project_directory() + "/config/.class_docs/xml")
-        if not os.path.exists(util.mm_project_directory() + "/config/.class_docs"):
-            os.makedirs(util.mm_project_directory() + "/config/.class_docs")
-<<<<<<< HEAD
-=======
+        
         if not os.path.exists(util.mm_project_directory() + "/config/.class_docs/xml"):
             os.makedirs(util.mm_project_directory() + "/config/.class_docs/xml")
-
->>>>>>> upstream/2.0
 
         printer = PanelPrinter.get(self.window.id())  
         printer.show() 
