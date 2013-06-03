@@ -1101,8 +1101,8 @@ class MavensMateCompletions(sublime_plugin.EventListener):
                             field_type = child.firstChild.nodeValue
                     _completions.append((field_name+" \t"+field_type, field_name))
                 return sorted(_completions)
-            elif os.path.isfile(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object"): #=> object fields
-                object_dom = parse(util.mm_project_directory()+"/src/objects/"+object_name_lower+".object")
+            elif os.path.isfile(util.mm_project_directory()+"/src/objects/"+object_name+".object"): #=> object fields
+                object_dom = parse(util.mm_project_directory()+"/src/objects/"+object_name+".object")
                 for node in object_dom.getElementsByTagName('fields'):
                     field_name = ''
                     field_type = ''
